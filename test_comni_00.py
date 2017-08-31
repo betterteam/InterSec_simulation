@@ -29,9 +29,10 @@ while not STOP_CHAT:
     print('接受连接，客户端地址：',addr)
     while True:
         try:
+            # 把接受的数据实例化
             data=tcpClientSock.recv(BUFSIZ)
         except:
-            #print(e)
+            # 关闭连接
             tcpClientSock.close()
             break
         if not data:
@@ -42,6 +43,10 @@ while not STOP_CHAT:
         ISOTIMEFORMAT='%Y-%m-%d %X'
         stime=time.strftime(ISOTIMEFORMAT, localtime())
         s='%s发送给我的信息是:%s' %(addr[0],data.decode('utf8'))
+
+        # s.send(string[,flag])
+        # 发送TCP数据。将string中的数据发送到连接的套接字。
+        # 返回值是要发送的字节数量，该数量可能小于string的字节大小。
         tcpClientSock.send(s.encode('utf8'))
         print([stime], ':', data.decode('utf8'))
         #如果输入quit(忽略大小写),则程序退出

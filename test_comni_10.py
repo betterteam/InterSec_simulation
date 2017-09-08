@@ -2,6 +2,7 @@
 from datetime import datetime
 import socket
 import struct
+import json
 
 server_address = ('localhost', 6789)
 max_size = 4096
@@ -18,15 +19,27 @@ while STOP_CHAT:
 
     data, client = server.recvfrom(max_size)
 
+    # data = struct.unpack("i", data)
+    # print(data)
+    #
+    # if data[0] % 2 == 1:
+    #    check = 1
+    #
+    # print('At', datetime.now(), client, 'said', data)
+
+    #data = data.decode('utf-8')
     data = struct.unpack("i", data)
     print(data)
+    # recData = json.loads(data)
 
-    if data[0] % 2 == 1:
-       check = 1
+    #print(recData)
 
-    print('At', datetime.now(), client, 'said', data)
 
-    str = struct.pack("i", check)
-    server.sendto(str, client)
+    if data[0] > 5:
+        str = struct.pack("i", 66666)
+        server.sendto(str, client)
+    else:
+        str = struct.pack("i", 23333)
+        server.sendto(str, client)
 
 server.close()

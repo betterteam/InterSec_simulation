@@ -1,13 +1,17 @@
-# Test UDP with Json format
-# Server
+# Test Intersection Manager with UDP
+# Get vehicle proposal, return the result
 
 from datetime import datetime
 import socket
 import struct
 import json
 
-server_address = ('localhost', 6788)
+server_address = ('localhost', 6789)
 max_size = 4096
+
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server.bind(server_address)
+
 sendData = [{
     "Veh_id": 0,
     "result": 0
@@ -48,8 +52,7 @@ while STOP_CHAT:
 
     print('starting the server at', datetime.now())
     print('waiting for a client to call.')
-    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server.bind(server_address)
+
 
     data, client = server.recvfrom(max_size)
 
@@ -66,16 +69,5 @@ while STOP_CHAT:
     #Send Json
     mes = bytes(json.dumps(sendData[recData["Veh_id"]]), encoding='utf-8')
     server.sendto(mes, client)
-
-    # Send Str
-    # str = struct.pack("i", 66666)
-    # server.sendto(str, client)
-
-    # if data[0] > 5:
-    #     str = struct.pack("i", 66666)
-    #     server.sendto(str, client)
-    # else:
-    #     str = struct.pack("i", 23333)
-    #     server.sendto(str, client)
 
 server.close()

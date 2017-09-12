@@ -58,15 +58,17 @@ while i < 10:
     # Json Version
     print('Starting the client at', datetime.now())
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(server_address)
+
     mes = bytes(json.dumps(sendData[i]), encoding='utf-8')
 
-    client.sendto(mes, server_address)
-    data, server = client.recvfrom(max_size)
+    client.send(mes)
+    data = client.recv(max_size)
 
     data = data.decode('utf-8')
     recData = json.loads(data)
-    print('At', datetime.now(), server, 'said', recData)
+    print('At', datetime.now(), 'server', 'said', recData)
 
     # data = struct.unpack("i", data)
     # print('At', datetime.now(), server, 'said', data)

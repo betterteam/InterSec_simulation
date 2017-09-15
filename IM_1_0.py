@@ -1,3 +1,4 @@
+# coding:utf-8
 # Test Intersection Manager with UDP
 # Get vehicle proposal, return the result
 # Starting of installing the collision detect algorithm

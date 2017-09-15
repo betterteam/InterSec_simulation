@@ -289,8 +289,6 @@ class Example(QWidget):
         self.my_result = recData['result']
 
         return self.my_result
-        # if self.my_result:
-        #     self.drawVehicles(self.qp)
 
     def aaa(self, veh_id):
         if veh_id > 5:
@@ -298,67 +296,20 @@ class Example(QWidget):
         else:
             return 0
 
-
-
     def drawVehicles(self, qp):
 
         qp.setPen(Qt.black)
         qp.setBrush(Qt.green)
 
-        # while 1:
-        # self.propose(1)
-
-
         qp.drawRect(310, 310, 5, 10)
 
-        #qp.drawRect(320, 320, 5, 10)
-
-
-
-
-        # for i, veh in enumerate(vehicles_N):
-        #     if self.propose(i):
-        #         print('?????????????')
-        #         qp.drawRect(300, 300, 5, 10)
-        #     else:
-        #         qp.drawRect(400, 400, 5, 10)
-
         for i in range(10):
-            server_address = ('localhost', 6788)
-            max_size = 4096
-
-            print('Starting the client at', datetime.now())
-
-            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect(server_address)
-
-            mes = bytes(json.dumps(self.sendData[i]), encoding='utf-8')
-            client.send(mes)
-            data = client.recv(max_size)
-            print('+++++++++++++++++++++++++++++++')
-
-            data = data.decode('utf-8')
-            recData = json.loads(data)
-            print('At', datetime.now(), 'server', 'said', recData)
-
-            print('!!!!!!!', recData['result'])
-            self.my_result = recData['result']
-            if self.my_result:
+            if self.propose(i):
                 print('?????????????')
                 #qp.drawRect(300, 300, 5, 10)
             else:
                 print('!!!!!!!!!!!!!')
                 #qp.drawRect(400, 400, 5, 10)
-
-
-
-        #client.close()
-
-        # if self.propose(1):
-        #     print('?????????????')
-        #     qp.drawRect(300, 300, 5, 10)
-        # else:
-        #     qp.drawRect(400, 400, 5, 10)
 
         # # Vehicles from North
         # for i, veh in enumerate(vehicles_N):

@@ -1,9 +1,16 @@
+# coding:utf-8
+# Test vehicle with UDP
 import sys
 import numpy as np
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QFrame, QDesktopWidget
 from PyQt5.QtGui import QPainter, QColor, QPen, QBrush
 from PyQt5.QtCore import Qt, QTimer, QTime
 import math
+
+import socket
+from datetime import datetime
+import struct
+import json
 
 class Position:
     def __init__(self, x=0, y=0):
@@ -51,11 +58,15 @@ class Vehicle:
             self._position.x = 0
 
 class Example(QWidget):
-    def __init__(self, vehicles_N, vehicles_W, vehicles_E):
+    def __init__(self, vehicles_N, vehicles_W, vehicles_E, sendData):
         super().__init__()
         self.vehicles_N = vehicles_N
         self.vehicles_W = vehicles_W
         self.vehicles_E = vehicles_E
+        self.sendData = sendData
+        self.my_result = 0
+        self.t_t = 0
+
         self.initUI()
 
         self.timer = QTimer(self)
@@ -111,7 +122,7 @@ class Example(QWidget):
                 self.grid[(i, j)] = True
 
     def paintEvent(self, e):
-        #print("!")
+        self.t_t += 1
         qp = QPainter(self)
 
         self.drawLines(qp)
@@ -260,11 +271,41 @@ class Example(QWidget):
     def coordinate_down_right_y(self, po_y, r):
         return po_y + 10 * math.sin(math.radians(r)) + 5 * math.cos(math.radians(r))
 
+    def propose(self, veh_id):
+        server_address = ('localhost', 6789)
+        max_size = 4096
+
+        print('Starting the client at', datetime.now())
+
+        client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # sendData: veh info and current Total_time
+        mes = bytes(json.dumps(dict({"time": self.t_t}, **self.sendData["vehicle"][veh_id])), encoding='utf-8')
+
+        client.sendto(mes, server_address)
+        data, server = client.recvfrom(max_size)
+
+        data = data.decode('utf-8')
+        recData = json.loads(data)
+        print('At', datetime.now(), server, 'said', recData)
+        client.close()
+        print('!!!!!!!', recData['result'])
+        self.my_result = recData['result']
+
+        return self.my_result
+
     def drawVehicles(self, qp):
 
         qp.setPen(Qt.black)
         qp.setBrush(Qt.green)
+        #qp.drawRect(310, 310, 5, 10)
 
+        # for i in range(10):
+        #     if self.propose(i):
+        #         print('?????????????')
+        #         qp.drawRect(322, 330, 5, 10)
+        #     else:
+        #         print('!!!!!!!!!!!!!')
+        #         qp.drawRect(400, 400, 5, 10)
 
         # Vehicles from North
         for i, veh in enumerate(vehicles_N):
@@ -353,6 +394,7 @@ class Example(QWidget):
             else:
                 # Just before the intersection
                 if veh.getPosition().x + 10 + 2 > 270 and veh.getPosition().x <= 270 - 10:
+                      #+++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     # Check traffic signal. True, then stop before entering.
                     if self.single_0_0:
                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
@@ -402,12 +444,12 @@ class Example(QWidget):
                         qp.translate(-veh.getPosition().x, -veh.getPosition().y)
 
                         # Calculate trajectory by using Bezier Curve
-                        x = pow(1 - (self.beze_t[i] / 60), 2) * 272 + 2 * (self.beze_t[i] / 60) * (
-                        1 - self.beze_t[i] / 60) * 330 + pow(
-                            self.beze_t[i] / 60, 2) * 330
+                        x = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
+                        1 - self.beze_t[i] / 60) * 332 + pow(
+                            self.beze_t[i] / 60, 2) * 332
                         y = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
                         1 - self.beze_t[i] / 60) * 273 + pow(
-                            self.beze_t[i] / 60, 2) * 330
+                            self.beze_t[i] / 60, 2) * 332
                         veh.setPosition(Position(x, y))
 
                         self.beze_t[i] += 2
@@ -554,8 +596,11 @@ if __name__ == '__main__':
     v.setSize(Size(10, 5))
     vehicles_E.append(v)
 
-    ex = Example(vehicles_N, vehicles_W, vehicles_E)
+    # Read vehicles info from json file
+    f = open('veh.json', 'r')
+    sendData = json.load(f)
+    f.close()
+
+    ex = Example(vehicles_N, vehicles_W, vehicles_E, sendData)
+
     sys.exit(app.exec_())
-
-
-

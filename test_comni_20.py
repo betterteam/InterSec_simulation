@@ -8,6 +8,10 @@ import json
 
 server_address = ('localhost', 6788)
 max_size = 4096
+
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server.bind(server_address)
+
 sendData = [{
     "Veh_id": 0,
     "result": 0
@@ -48,18 +52,18 @@ while STOP_CHAT:
 
     print('starting the server at', datetime.now())
     print('waiting for a client to call.')
-    server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server.bind(server_address)
+
 
     data, client = server.recvfrom(max_size)
 
     data = data.decode('utf-8')
     recData = json.loads(data)
 
-    print(recData["arrival_time"])
-
-    if recData["arrival_time"] < 5:
-        sendData[recData["Veh_id"]]["result"] = 1
+    # print(recData["arrival_time"])
+    #
+    # if recData["arrival_time"] < 5:
+    #     sendData[recData["Veh_id"]]["result"] = 1
+    print(recData)
 
     print(sendData)
 

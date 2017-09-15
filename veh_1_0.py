@@ -271,15 +271,24 @@ class Example(QWidget):
     def coordinate_down_right_y(self, po_y, r):
         return po_y + 10 * math.sin(math.radians(r)) + 5 * math.cos(math.radians(r))
 
-    def propose(self, veh_id):
+    def propose(self, veh_id, current, origin, destination, speed):
         server_address = ('localhost', 6789)
         max_size = 4096
 
         print('Starting the client at', datetime.now())
 
         client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        self.sendData["position"] = list(current)
+        self.sendData["origin"] = list(origin)
+        self.sendData["destination"] = list(destination)
+        self.sendData["speed"] = speed
+        #self.sendData["time"] = time
+
         # sendData: veh info and current Total_time
-        mes = bytes(json.dumps(dict({"time": self.t_t}, **self.sendData["vehicle"][veh_id])), encoding='utf-8')
+        mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData["vehicle"][veh_id])), encoding='utf-8')
+
+        print(mes)
 
         client.sendto(mes, server_address)
         data, server = client.recvfrom(max_size)
@@ -298,6 +307,8 @@ class Example(QWidget):
         qp.setPen(Qt.black)
         qp.setBrush(Qt.green)
         #qp.drawRect(310, 310, 5, 10)
+
+        self.propose(1, [262, 273], [270, 273], [330, 330], 2)
 
         # for i in range(10):
         #     if self.propose(i):
@@ -383,187 +394,187 @@ class Example(QWidget):
 
 
         # Vehicles from West
-        for i, veh in enumerate(vehicles_W):
-            # Check if there are vehicles ahead. If true, stop
-            if (veh.getPosition().x + veh.getSpeed().x, veh.getPosition().y + veh.getSpeed().y) in self.collision_check_W:
-                qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
-                # Make the room not available for other vehicles
-                for j in range(11):
-                    self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-            # Move forward
-            else:
-                # Just before the intersection
-                if veh.getPosition().x + 10 + 2 > 270 and veh.getPosition().x <= 270 - 10:
-                      #+++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    # Check traffic signal. True, then stop before entering.
-                    if self.single_0_0:
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
-                        for j in range(11):
-                            self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-                    # Enter intersection
-                    else:
-                        veh.getPosition().x += 2
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
-                        for j in range(11):
-                            self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-
-                        # Light up the grids in the intersection
-                        # Up left
-                        if (veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
-                            self.grid[(veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                        # Up right
-                        if ((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
-                            self.grid[((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                        # Down left
-                        if (veh.getPosition().x // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
-                            self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                        # Down right
-                        if ((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
-                            self.grid[((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                # Already in the intersection
-                else:
-                    if 270 < veh.getPosition().x < 328 and veh.getPosition().y < 330:
-                        qp.save()
-                        qp.translate(veh.getPosition().x, veh.getPosition().y)
-
-                        # Calculate rotation angle
-                        if (((veh.getPosition().x - 270 + 3) / 60) * 90 > 15):
-                            self.r[i] = ((veh.getPosition().x - 270 + 3) / 60) * 90
-                            qp.rotate(self.r[i])
-                        else:
-                            self.r[i] = 0
-                            qp.rotate(self.r[i])
-                        qp.translate(-veh.getPosition().x, -veh.getPosition().y)
-
-                        # Calculate trajectory by using Bezier Curve
-                        x = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
-                        1 - self.beze_t[i] / 60) * 332 + pow(
-                            self.beze_t[i] / 60, 2) * 332
-                        y = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
-                        1 - self.beze_t[i] / 60) * 273 + pow(
-                            self.beze_t[i] / 60, 2) * 332
-                        veh.setPosition(Position(x, y))
-
-                        self.beze_t[i] += 2
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
-                        for j in range(11):
-                            self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-                        qp.restore()
-
-                        # Calculate the big Square's coordinate
-                        self.up_left_x[i] = self.coordinate_up_left_x(veh.getPosition().x, self.r[i])
-                        self.up_left_y[i] = self.coordinate_up_left_y(veh.getPosition().y)
-                        self.down_left_x[i] = self.coordinate_down_left_x(veh.getPosition().x, self.r[i])
-                        self.down_left_y[i] = self.coordinate_down_left_y(veh.getPosition().y, self.r[i])
-                        self.up_right_x[i] = self.coordinate_up_right_x(veh.getPosition().x, self.r[i])
-                        self.up_right_y[i] = self.coordinate_up_right_y(veh.getPosition().y)
-                        self.down_right_x[i] = self.coordinate_down_right_x(veh.getPosition().x, self.r[i])
-                        self.down_right_y[i] = self.coordinate_down_right_y(veh.getPosition().y, self.r[i])
-
-                        # Up left
-                        if (self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10) in self.grid:
-                            self.grid[(self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10)] = False
-                            # print('success')
-
-                        # Up right
-                        if ((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10) in self.grid:
-                            self.grid[((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10)] = False
-                            # print('success')
-
-                        # Down left
-                        if (self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10) in self.grid:
-                            self.grid[(self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10)] = False
-                            # print('success')
-
-                        # Down right
-                        if ((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10) in self.grid:
-                            self.grid[((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10)] = False
-                            # print('success')
-
-                    # Already left intersection
-                    elif 328 <= veh.getPosition().x and veh.getPosition().y < 600:
-                        qp.save()
-                        qp.translate(veh.getPosition().x, veh.getPosition().y)
-                        qp.rotate(90)
-                        qp.translate(-veh.getPosition().x, -veh.getPosition().y)
-                        veh.getPosition().y += 2
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
-                        for j in range(11):
-                            self.collision_check_W.append((veh.getPosition().x, veh.getPosition().y - j))
-                        qp.restore()
-
-                    # Already left screen
-                    elif veh.getPosition().y >= 600:
-                        veh.getPosition().x = 0
-                        veh.getPosition().y = 273
-                        self.beze_t[i] = 0
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
-                        for j in range(11):
-                            self.collision_check_W.append((veh.getPosition().x, veh.getPosition().y - j))
-
-                    # Move horizontal direction(across X_axis)
-                    else:
-                        veh.getPosition().x += 2
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
-                        for j in range(11):
-                            self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-
-        # Vehicle2
-        # if self.single_0_0:
+        # for i, veh in enumerate(vehicles_W):
+        #     # Check if there are vehicles ahead. If true, stop
+        #     if (veh.getPosition().x + veh.getSpeed().x, veh.getPosition().y + veh.getSpeed().y) in self.collision_check_W:
+        #         qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
+        #         # Make the room not available for other vehicles
+        #         for j in range(11):
+        #             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
+        #     # Move forward
+        #     else:
+        #         # Just before the intersection
+        #         if veh.getPosition().x + 10 + 2 > 270 and veh.getPosition().x <= 270 - 10:
+        #               #+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        #             # Check traffic signal. True, then stop before entering.
+        #             if not self.propose():
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
+        #                 for j in range(11):
+        #                     self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
+        #             # Enter intersection
+        #             else:
+        #                 veh.getPosition().x += 2
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
+        #                 for j in range(11):
+        #                     self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
+        #
+        #                 # Light up the grids in the intersection
+        #                 # Up left
+        #                 if (veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
+        #                     self.grid[(veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10)] = False
+        #                     #print('success, x:', veh.getPosition().x)
+        #
+        #                 # Up right
+        #                 if ((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
+        #                     self.grid[((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10)] = False
+        #                     #print('success, x:', veh.getPosition().x)
+        #
+        #                 # Down left
+        #                 if (veh.getPosition().x // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
+        #                     self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
+        #                     #print('success, x:', veh.getPosition().x)
+        #
+        #                 # Down right
+        #                 if ((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
+        #                     self.grid[((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
+        #                     #print('success, x:', veh.getPosition().x)
+        #
+        #         # Already in the intersection
+        #         else:
+        #             if 270 < veh.getPosition().x < 328 and veh.getPosition().y < 330:
+        #                 qp.save()
+        #                 qp.translate(veh.getPosition().x, veh.getPosition().y)
+        #
+        #                 # Calculate rotation angle
+        #                 if (((veh.getPosition().x - 270 + 3) / 60) * 90 > 15):
+        #                     self.r[i] = ((veh.getPosition().x - 270 + 3) / 60) * 90
+        #                     qp.rotate(self.r[i])
+        #                 else:
+        #                     self.r[i] = 0
+        #                     qp.rotate(self.r[i])
+        #                 qp.translate(-veh.getPosition().x, -veh.getPosition().y)
+        #
+        #                 # Calculate trajectory by using Bezier Curve
+        #                 x = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
+        #                 1 - self.beze_t[i] / 60) * 332 + pow(
+        #                     self.beze_t[i] / 60, 2) * 332
+        #                 y = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
+        #                 1 - self.beze_t[i] / 60) * 273 + pow(
+        #                     self.beze_t[i] / 60, 2) * 332
+        #                 veh.setPosition(Position(x, y))
+        #
+        #                 self.beze_t[i] += 2
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
+        #                 for j in range(11):
+        #                     self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
+        #                 qp.restore()
+        #
+        #                 # Calculate the big Square's coordinate
+        #                 self.up_left_x[i] = self.coordinate_up_left_x(veh.getPosition().x, self.r[i])
+        #                 self.up_left_y[i] = self.coordinate_up_left_y(veh.getPosition().y)
+        #                 self.down_left_x[i] = self.coordinate_down_left_x(veh.getPosition().x, self.r[i])
+        #                 self.down_left_y[i] = self.coordinate_down_left_y(veh.getPosition().y, self.r[i])
+        #                 self.up_right_x[i] = self.coordinate_up_right_x(veh.getPosition().x, self.r[i])
+        #                 self.up_right_y[i] = self.coordinate_up_right_y(veh.getPosition().y)
+        #                 self.down_right_x[i] = self.coordinate_down_right_x(veh.getPosition().x, self.r[i])
+        #                 self.down_right_y[i] = self.coordinate_down_right_y(veh.getPosition().y, self.r[i])
+        #
+        #                 # Up left
+        #                 if (self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10) in self.grid:
+        #                     self.grid[(self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10)] = False
+        #                     # print('success')
+        #
+        #                 # Up right
+        #                 if ((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10) in self.grid:
+        #                     self.grid[((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10)] = False
+        #                     # print('success')
+        #
+        #                 # Down left
+        #                 if (self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10) in self.grid:
+        #                     self.grid[(self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10)] = False
+        #                     # print('success')
+        #
+        #                 # Down right
+        #                 if ((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10) in self.grid:
+        #                     self.grid[((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10)] = False
+        #                     # print('success')
+        #
+        #             # Already left intersection
+        #             elif 328 <= veh.getPosition().x and veh.getPosition().y < 600:
+        #                 qp.save()
+        #                 qp.translate(veh.getPosition().x, veh.getPosition().y)
+        #                 qp.rotate(90)
+        #                 qp.translate(-veh.getPosition().x, -veh.getPosition().y)
+        #                 veh.getPosition().y += 2
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
+        #                 for j in range(11):
+        #                     self.collision_check_W.append((veh.getPosition().x, veh.getPosition().y - j))
+        #                 qp.restore()
+        #
+        #             # Already left screen
+        #             elif veh.getPosition().y >= 600:
+        #                 veh.getPosition().x = 0
+        #                 veh.getPosition().y = 273
+        #                 self.beze_t[i] = 0
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
+        #                 for j in range(11):
+        #                     self.collision_check_W.append((veh.getPosition().x, veh.getPosition().y - j))
+        #
+        #             # Move horizontal direction(across X_axis)
+        #             else:
+        #                 veh.getPosition().x += 2
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
+        #                 for j in range(11):
+        #                     self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
+        #
+        # # Vehicle2
+        # # if self.single_0_0:
+        # #     qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
+        # # else:
+        # try:
+        #     if self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
+        #             self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
+        #             self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)] and \
+        #             self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)]:
+        #
+        #         self.vehicles_E[0].getPosition().x -= 3
+        #
+        #         if self.vehicles_E[0].getPosition().x < 0:
+        #             self.vehicles_E[0].getPosition().x = 600
+        #
+        #         qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
+        #         qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
+        #
+        #     else:
+        #         qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
+        #         qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
+        #
+        # except KeyError:
+        #     self.vehicles_E[0].getPosition().x -= 3
+        #
+        #     if self.vehicles_E[0].getPosition().x < 0:
+        #         self.vehicles_E[0].getPosition().x = 600
+        #
+        #     qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
         #     qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-        # else:
-        try:
-            if self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
-                    self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
-                    self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)] and \
-                    self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)]:
-
-                self.vehicles_E[0].getPosition().x -= 3
-
-                if self.vehicles_E[0].getPosition().x < 0:
-                    self.vehicles_E[0].getPosition().x = 600
-
-                qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
-                qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-
-            else:
-                qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
-                qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-
-        except KeyError:
-            self.vehicles_E[0].getPosition().x -= 3
-
-            if self.vehicles_E[0].getPosition().x < 0:
-                self.vehicles_E[0].getPosition().x = 600
-
-            qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
-            qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-
-        self.collision_check = []
-        self.collision_check_N = []
-        self.collision_check_S = []
-        self.collision_check_W = []
-        self.collision_check_E = []
-
-
-        for i in range(270, 330, 10):
-            for j in range(270, 330, 10):
-                self.grid[(i, j)] = True
-
-
-        self.ti += 10
-        if self.ti > 700:
-            self.ti = 0
-            # print(self.t.elapsed())
-            self.t.restart()
+        #
+        # self.collision_check = []
+        # self.collision_check_N = []
+        # self.collision_check_S = []
+        # self.collision_check_W = []
+        # self.collision_check_E = []
+        #
+        #
+        # for i in range(270, 330, 10):
+        #     for j in range(270, 330, 10):
+        #         self.grid[(i, j)] = True
+        #
+        #
+        # self.ti += 10
+        # if self.ti > 700:
+        #     self.ti = 0
+        #     # print(self.t.elapsed())
+        #     self.t.restart()
 
 
 if __name__ == '__main__':

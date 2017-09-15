@@ -89,10 +89,22 @@ def sendResult():
         data = data.decode('utf-8')
         recData = json.loads(data)
 
-        print(recData["arrival_time"])
+        print(recData)
+        #print(recData["arrival_time"])
 
-        if recData["arrival_time"] < 5:
+        veh_id = recData["Veh_id"]
+        current = tuple(recData["position"])
+        origin = tuple(recData["origin"])
+        destination = tuple(recData["destination"])
+        speed = recData["speed"]
+
+        if light_veh_pattern1(veh_id, current, origin, destination, speed):
             sendData[recData["Veh_id"]]["result"] = 1
+        else:
+            sendData[recData["Veh_id"]]["result"] = 0
+
+        # if recData["arrival_time"] < 5:
+        #     sendData[recData["Veh_id"]]["result"] = 1
 
         print(sendData)
 
@@ -104,9 +116,10 @@ def sendResult():
 
 # vehicles travel from W_1 to S_6
 # origin and destination is a pattern of (x,y)
-def light_veh_pattern1(veh_num, current, origin, destination, speed, time):
+def light_veh_pattern1(veh_num, current, origin, destination, speed):
     new_position = current
     time = 0
+    check_grid = []
 
     # Before veh get out of the intersection
     while new_position[1] <= destination[1]:
@@ -231,6 +244,6 @@ def light_veh_pattern1(veh_num, current, origin, destination, speed, time):
 def test_collision():
     print()
 
-print(light_veh_pattern1(1, (262, 273), (270, 273), (330, 330), 2, 0))
+#print(light_veh_pattern1(1, (262, 273), (270, 273), (330, 330), 2, 0))
 
-#sendResult()
+sendResult()

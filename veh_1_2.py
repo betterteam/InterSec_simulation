@@ -1,5 +1,8 @@
 # coding:utf-8
 # Test vehicle with UDP
+# Add veh pattern2
+# After seminar 0920, new improvement
+
 import sys
 import numpy as np
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QFrame, QDesktopWidget
@@ -127,7 +130,7 @@ class Example(QWidget):
         qp = QPainter(self)
 
         self.drawLines(qp)
-        self.drawSignals_0(qp)
+        #self.drawSignals_0(qp)
         self.drawVehicles(qp)
 
     def drawLines(self, qp):
@@ -280,17 +283,19 @@ class Example(QWidget):
 
         client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        self.sendData_1["pattern"] = pattern
-        self.sendData_1["position"] = list(current)
+        self.sendData_1["pattern"] = 3
+        current_position = list(current)
+        print('++++++++++++++++++++++++++++++++++++++')
         self.sendData_1["origin"] = list(origin)
         self.sendData_1["destination"] = list(destination)
         self.sendData_1["speed"] = speed
-        self.sendData_1["current_time"] = current_time
 
         # sendData_1: veh info and current Total_time
-        mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData_1["vehicle"][veh_id])), encoding='utf-8')
-
-        print(mes)
+        #mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData_1["vehicle"][veh_id])), encoding='utf-8')
+        dictMerge = dict({"time_step": current_time}, **self.sendData_1["vehicle"][veh_id])
+        dictMerge = dict({"current_position": current_position}, **dictMerge)
+        mes = bytes(json.dumps(dictMerge), encoding='utf-8')
+        print(dictMerge)
 
         client.sendto(mes, server_address)
         data, server = client.recvfrom(max_size)
@@ -299,7 +304,7 @@ class Example(QWidget):
         recData = json.loads(data)
         print('At', datetime.now(), server, 'said', recData)
         client.close()
-        print('!!!!!!!', recData['result'])
+        #print('!!!!!!!', recData['result'])
         self.my_result = recData['result']
 
         return self.my_result
@@ -331,7 +336,7 @@ class Example(QWidget):
         recData = json.loads(data)
         print('At', datetime.now(), server, 'said', recData)
         client.close()
-        print('!!!!!!!', recData['result'])
+        #print('!!!!!!!', recData['result'])
         self.my_result = recData['result']
 
         return self.my_result
@@ -343,14 +348,6 @@ class Example(QWidget):
         #qp.drawRect(310, 310, 5, 10)
 
         #self.propose(1, [262, 273], [270, 273], [330, 330], 2)
-
-        # for i in range(10):
-        #     if self.propose(i):
-        #         print('?????????????')
-        #         qp.drawRect(322, 330, 5, 10)
-        #     else:
-        #         print('!!!!!!!!!!!!!')
-        #         qp.drawRect(400, 400, 5, 10)
 
         # Vehicles from North
         # for i, veh in enumerate(vehicles_N):
@@ -441,39 +438,20 @@ class Example(QWidget):
                 if veh.getPosition().x + 10 + 2 > 270 and veh.getPosition().x <= 270 - 10:
                       #+++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     # Check traffic signal. True, then stop before entering.
-                    print(veh.getPosition())
+                    #print(veh.getPosition())
                     if not self.propose_pattern_1(i, (veh.getPosition().x, veh.getPosition().y), (270, 273), (330, 330), veh.getSpeed().x, self.t_t, 1):
                     # if True:
+                        print("False", (veh.getPosition().x, veh.getPosition().y))
                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
                         for j in range(11):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
                     # Enter intersection
                     else:
+                        print("True", (veh.getPosition().x, veh.getPosition().y))
                         veh.getPosition().x += 2
                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
                         for j in range(11):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-
-                        # # Light up the grids in the intersection
-                        # # Up left
-                        # if (veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
-                        #     self.grid[(veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10)] = False
-                        #     #print('success, x:', veh.getPosition().x)
-                        #
-                        # # Up right
-                        # if ((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
-                        #     self.grid[((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10)] = False
-                        #     #print('success, x:', veh.getPosition().x)
-                        #
-                        # # Down left
-                        # if (veh.getPosition().x // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
-                        #     self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
-                        #     #print('success, x:', veh.getPosition().x)
-                        #
-                        # # Down right
-                        # if ((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
-                        #     self.grid[((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
-                        #     #print('success, x:', veh.getPosition().x)
 
                 # Already in the intersection
                 else:
@@ -515,26 +493,6 @@ class Example(QWidget):
                         self.down_right_x[i] = self.coordinate_down_right_x(veh.getPosition().x, self.r[i])
                         self.down_right_y[i] = self.coordinate_down_right_y(veh.getPosition().y, self.r[i])
 
-                        # # Up left
-                        # if (self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10) in self.grid:
-                        #     self.grid[(self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10)] = False
-                        #     # print('success')
-                        #
-                        # # Up right
-                        # if ((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10) in self.grid:
-                        #     self.grid[((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10)] = False
-                        #     # print('success')
-                        #
-                        # # Down left
-                        # if (self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10) in self.grid:
-                        #     self.grid[(self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10)] = False
-                        #     # print('success')
-                        #
-                        # # Down right
-                        # if ((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10) in self.grid:
-                        #     self.grid[((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10)] = False
-                        #     # print('success')
-
                     # Already left intersection
                     elif 328 <= veh.getPosition().x and veh.getPosition().y < 600:
                         qp.save()
@@ -564,14 +522,10 @@ class Example(QWidget):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
 
         # Vehicle2
-        # if self.single_0_0:
-        #     qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-        # else:
-
 
         if 330 <= (vehicles_E[0].getPosition().x) and (vehicles_E[0].getPosition().x - vehicles_E[0].getSpeed().x) < 330:
             #if self.propose_pattern_3(0, (veh.getPosition().x, veh.getPosition().y), (330, 272), (260, 272), veh.getSpeed().x, self.t_t):
-            if False:
+            if True:
                 self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
 
                 if self.vehicles_E[0].getPosition().x < 0:
@@ -588,33 +542,6 @@ class Example(QWidget):
                 self.vehicles_E[0].getPosition().x = 600
 
             qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-
-        # try:
-        #     if self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
-        #             self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
-        #             self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)] and \
-        #             self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)]:
-        #
-        #         self.vehicles_E[0].getPosition().x -= 3
-        #
-        #         if self.vehicles_E[0].getPosition().x < 0:
-        #             self.vehicles_E[0].getPosition().x = 600
-        #
-        #         qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
-        #         qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-        #
-        #     else:
-        #         qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
-        #         qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-        #
-        # except KeyError:
-        #     self.vehicles_E[0].getPosition().x -= 3
-        #
-        #     if self.vehicles_E[0].getPosition().x < 0:
-        #         self.vehicles_E[0].getPosition().x = 600
-        #
-        #     qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
-        #     qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
 
         self.collision_check = []
         self.collision_check_N = []
@@ -649,9 +576,9 @@ if __name__ == '__main__':
 
     # Vehicles from West
     vehicles_W = []
-    for i in range(9):
+    for i in range(10):
         v = Vehicle()
-        v.setPosition(Position(0 - i * 10, 273))
+        v.setPosition(Position(0 - i * 20, 273))
         v.setSpeed(Speed(2, 0))
         v.setSize(Size(10, 5))
         vehicles_W.append(v)
@@ -661,19 +588,19 @@ if __name__ == '__main__':
     vehicles_E = []
     v = Vehicle()
     v.setPosition(Position(600, 302))
-    v.setSpeed(Speed(2, 0))
+    v.setSpeed(Speed(3, 0))
     v.setSize(Size(10, 5))
     vehicles_E.append(v)
 
     # Read vehicles info from json file
     f = open('veh.json', 'r')
-    sendData = json.load(f)
+    sendData_1 = json.load(f)
     f.close()
 
     f = open('veh_3.json', 'r')
     sendData_3 = json.load(f)
     f.close()
 
-    ex = Example(vehicles_N, vehicles_W, vehicles_E, sendData, sendData_3)
+    ex = Example(vehicles_N, vehicles_W, vehicles_E, sendData_1, sendData_3)
 
     sys.exit(app.exec_())

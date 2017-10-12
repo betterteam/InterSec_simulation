@@ -266,76 +266,76 @@ class Example(QWidget):
         qp.setBrush(Qt.green)
 
 
-        # Vehicles from North
-        for i, veh in enumerate(vehicles_N):
-            if (veh.getPosition().x + veh.getSpeed().x, veh.getPosition().y + veh.getSpeed().y) in self.collision_check_N:
-                qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
-                for i in range(11):
-                    self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-            else:
-                if veh.getPosition().y + veh.getSpeed().y > 260 and veh.getPosition().y <= 260:
-                    if self.single_0_1:
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
-                        for i in range(11):
-                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-                    else:
-                        if veh.getPosition().y <= 270:
-                            if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                          (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
-
-                                veh.getPosition().y += veh.getSpeed().y
-                                qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
-                                for i in range(11):
-                                    self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-                                self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
-                                self.grid[((veh.getPosition().x + veh.getSize().x) // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
-                        else:
-                            try:
-                                if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                              (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
-                                        self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                                   (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
-                                        self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                                   (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
-                                        self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                                   (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
-
-                                    self.vehicles_N[i].getPosition().y += veh.getSpeed().y
-
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
-
-                                    if self.vehicles_N[i].getPosition().y > 600:
-                                        self.vehicles_N[i].getPosition().y = 0
-                                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
-                                        for i in range(11):
-                                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-
-                            except KeyError:
-                                self.vehicles_N[i].getPosition().y += veh.getSpeed().y
-
-                                if self.vehicles_N[i].getPosition().y > 600:
-                                    self.vehicles_N[i].getPosition().y = 0
-
-                                qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
-
-                else:
-                    # print(self.single_0_1)
-                    veh.getPosition().y += veh.getSpeed().y
-                    if veh.getPosition().y > 600:
-                        veh.getPosition().y = 0
-                        # print(self.t.elapsed())
-                    qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
-                    for i in range(11):
-                        self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        # # Vehicles from North
+        # for i, veh in enumerate(vehicles_N):
+        #     if (veh.getPosition().x + veh.getSpeed().x, veh.getPosition().y + veh.getSpeed().y) in self.collision_check_N:
+        #         qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
+        #         for i in range(11):
+        #             self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #     else:
+        #         if veh.getPosition().y + veh.getSpeed().y > 260 and veh.getPosition().y <= 260:
+        #             if self.single_0_1:
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
+        #                 for i in range(11):
+        #                     self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #             else:
+        #                 if veh.getPosition().y <= 270:
+        #                     if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                   (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
+        #
+        #                         veh.getPosition().y += veh.getSpeed().y
+        #                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
+        #                         for i in range(11):
+        #                             self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #                         self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
+        #                         self.grid[((veh.getPosition().x + veh.getSize().x) // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
+        #                 else:
+        #                     try:
+        #                         if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                       (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
+        #                                 self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                            (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
+        #                                 self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                            (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
+        #                                 self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                            (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
+        #
+        #                             self.vehicles_N[i].getPosition().y += veh.getSpeed().y
+        #
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
+        #
+        #                             if self.vehicles_N[i].getPosition().y > 600:
+        #                                 self.vehicles_N[i].getPosition().y = 0
+        #                                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
+        #                                 for i in range(11):
+        #                                     self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #
+        #                     except KeyError:
+        #                         self.vehicles_N[i].getPosition().y += veh.getSpeed().y
+        #
+        #                         if self.vehicles_N[i].getPosition().y > 600:
+        #                             self.vehicles_N[i].getPosition().y = 0
+        #
+        #                         qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
+        #
+        #         else:
+        #             # print(self.single_0_1)
+        #             veh.getPosition().y += veh.getSpeed().y
+        #             if veh.getPosition().y > 600:
+        #                 veh.getPosition().y = 0
+        #                 # print(self.t.elapsed())
+        #             qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
+        #             for i in range(11):
+        #                 self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
 
             #print(self.collision_check)
 
@@ -549,7 +549,7 @@ if __name__ == '__main__':
     # Vehicles from East
     vehicles_E = []
     v = Vehicle()
-    v.setPosition(Position(600, 280))
+    v.setPosition(Position(600, 302))
     v.setSpeed(Speed(2, 0))
     v.setSize(Size(10, 5))
     vehicles_E.append(v)

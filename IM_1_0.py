@@ -13,6 +13,7 @@ import funcs
 import math
 import copy
 
+
 # preparation as a server
 server_address = ('localhost', 6789)
 max_size = 4096
@@ -69,6 +70,9 @@ for i in range(veh_num):
     down_right_x.append(0)
     down_right_y.append(0)
 
+# Initiate time step
+time_step = 0
+
 
 print(intersec_grid[1])
 print(intersec_grid[2])
@@ -97,8 +101,9 @@ def sendResult():
         origin = tuple(recData["origin"])
         destination = tuple(recData["destination"])
         speed = recData["speed"]
+        current_time = recData["current_time"]
 
-        if light_veh_pattern1(veh_id, current, origin, destination, speed):
+        if light_veh_pattern1(veh_id, current, origin, destination, speed, current_time):
             sendData[recData["Veh_id"]]["result"] = 1
         else:
             sendData[recData["Veh_id"]]["result"] = 0
@@ -116,10 +121,19 @@ def sendResult():
 
 # vehicles travel from W_1 to S_6
 # origin and destination is a pattern of (x,y)
-def light_veh_pattern1(veh_num, current, origin, destination, speed):
+def light_veh_pattern1(veh_num, current, origin, destination, speed, current_time):
     new_position = current
     time = 0
     check_grid = []
+    return_time = 0
+
+    # Initiate intersection grid
+    if current_time > time_step:
+        #time_step = current_time
+        for i in range(t_ahead):
+            for i in range(270, 330, 10):
+                for j in range(270, 330, 10):
+                    grid[(i, j)] = True
 
     # Before veh get out of the intersection
     while new_position[1] <= destination[1]:
@@ -227,12 +241,6 @@ def light_veh_pattern1(veh_num, current, origin, destination, speed):
     if time == 35:
         for i in range(t_ahead):
             print(intersec_grid[i])
-
-    # Initiate intersection grid
-    for i in range(t_ahead):
-        for i in range(270, 330, 10):
-            for j in range(270, 330, 10):
-                grid[(i, j)] = True
 
     return True
 

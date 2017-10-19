@@ -2,6 +2,8 @@
 # Test vehicle with UDP
 # Add veh pattern2
 # After seminar 0920, new improvement
+# Unify parameter name in Propose Function
+
 
 import sys
 import numpy as np
@@ -283,7 +285,7 @@ class Example(QWidget):
 
         client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        self.sendData_1["pattern"] = 3
+        self.sendData_1["pattern"] = 1
         current_position = list(current)
         print('++++++++++++++++++++++++++++++++++++++')
         self.sendData_1["origin"] = list(origin)
@@ -304,12 +306,11 @@ class Example(QWidget):
         recData = json.loads(data)
         print('At', datetime.now(), server, 'said', recData)
         client.close()
-        #print('!!!!!!!', recData['result'])
         self.my_result = recData['result']
 
         return self.my_result
 
-    def propose_pattern_3(self, veh_id, current, origin, destination, speed, current_time):
+    def propose_pattern_3(self, veh_id, current, origin, destination, speed, current_time, pattern):
         server_address = ('localhost', 6789)
         max_size = 4096
 
@@ -318,16 +319,18 @@ class Example(QWidget):
         client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.sendData_3["pattern"] = 3
-        self.sendData_3["position"] = list(current)
+        current_position = list(current)
+        print('++++++++++++++++++++++++++++++++++++++')
         self.sendData_3["origin"] = list(origin)
         self.sendData_3["destination"] = list(destination)
         self.sendData_3["speed"] = speed
-        self.sendData_3["current_time"] = current_time
 
-        # sendData_3: veh info and current Total_time
-        mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData_3["vehicle"][veh_id])), encoding='utf-8')
-
-        print(mes)
+        # sendData_1: veh info and current Total_time
+        # mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData_1["vehicle"][veh_id])), encoding='utf-8')
+        dictMerge = dict({"time_step": current_time}, **self.sendData_3["vehicle"][veh_id])
+        dictMerge = dict({"current_position": current_position}, **dictMerge)
+        mes = bytes(json.dumps(dictMerge), encoding='utf-8')
+        print(dictMerge)
 
         client.sendto(mes, server_address)
         data, server = client.recvfrom(max_size)
@@ -336,7 +339,6 @@ class Example(QWidget):
         recData = json.loads(data)
         print('At', datetime.now(), server, 'said', recData)
         client.close()
-        #print('!!!!!!!', recData['result'])
         self.my_result = recData['result']
 
         return self.my_result
@@ -524,8 +526,8 @@ class Example(QWidget):
         # Vehicle2
 
         if 330 <= (vehicles_E[0].getPosition().x) and (vehicles_E[0].getPosition().x - vehicles_E[0].getSpeed().x) < 330:
-            #if self.propose_pattern_3(0, (veh.getPosition().x, veh.getPosition().y), (330, 272), (260, 272), veh.getSpeed().x, self.t_t):
-            if True:
+            if self.propose_pattern_3(0, (vehicles_E[0].getPosition().x, vehicles_E[0].getPosition().y), (330, 272), (260, 272), veh.getSpeed().x, self.t_t, 3):
+            # if True:
                 self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
 
                 if self.vehicles_E[0].getPosition().x < 0:
@@ -548,13 +550,7 @@ class Example(QWidget):
         self.collision_check_S = []
         self.collision_check_W = []
         self.collision_check_E = []
-        #
-        #
-        # for i in range(270, 330, 10):
-        #     for j in range(270, 330, 10):
-        #         self.grid[(i, j)] = True
-        #
-        #
+
         self.ti += 10
         if self.ti > 700:
             self.ti = 0

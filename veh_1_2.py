@@ -574,7 +574,7 @@ if __name__ == '__main__':
     vehicles_W = []
     for i in range(10):
         v = Vehicle()
-        v.setPosition(Position(0 - i * 20, 273))
+        v.setPosition(Position(0 - i * 10, 273))
         v.setSpeed(Speed(2, 0))
         v.setSize(Size(10, 5))
         vehicles_W.append(v)
@@ -584,7 +584,7 @@ if __name__ == '__main__':
     vehicles_E = []
     v = Vehicle()
     v.setPosition(Position(600, 302))
-    v.setSpeed(Speed(3, 0))
+    v.setSpeed(Speed(5, 0))
     v.setSize(Size(10, 5))
     vehicles_E.append(v)
 

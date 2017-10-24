@@ -356,8 +356,8 @@ class Example(QWidget):
                 # Just before intersection
                 if veh.getPosition().y + veh.getSpeed().y > 260 and veh.getPosition().y <= 260:
                    # Try to make a reservation from IM. If false, then stop before entering.
-                    if self.propose(i, (vehicles_N[i].getPosition().x, vehicles_N[i].getPosition().y), (330, 272),
-                                    (260, 272), veh.getSpeed().y, self.t_t, 2, self.sendData_2["vehicle"][i]):
+                    if self.propose(i, (vehicles_N[i].getPosition().x, vehicles_N[i].getPosition().y), (313, 270),
+                                    (313, 330), veh.getSpeed().y, self.t_t, 2, self.sendData_2["vehicle"][i]):
                     # if True:
                         self.vehicles_N[i].getPosition().y += self.vehicles_N[i].getSpeed().y
 
@@ -365,8 +365,12 @@ class Example(QWidget):
                             self.vehicles_N[i].getPosition().y = 0
 
                         qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
+                        for i in range(11):
+                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
                     else:
                         qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
+                        for i in range(11):
+                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
                 else:
                     self.vehicles_N[i].getPosition().y += self.vehicles_N[i].getSpeed().y
 
@@ -374,6 +378,8 @@ class Example(QWidget):
                         self.vehicles_N[i].getPosition().y = 0
 
                     qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
+                    for i in range(5):
+                        self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
 
         # Vehicles Pattern1(from W1 to S6)
         for i, veh in enumerate(vehicles_W):
@@ -471,7 +477,7 @@ class Example(QWidget):
 
         # Vehicle Pattern3(From E4 to W4)
         if 330 <= vehicles_E[0].getPosition().x and vehicles_E[0].getPosition().x - vehicles_E[0].getSpeed().x < 330:
-            if self.propose(0, (vehicles_E[0].getPosition().x, vehicles_E[0].getPosition().y), (330, 272), (260, 272), veh.getSpeed().x, self.t_t, 3, self.sendData_3["vehicle"][0]):
+            if self.propose(0, (vehicles_E[0].getPosition().x, vehicles_E[0].getPosition().y), (330, 302), (270, 302), veh.getSpeed().x, self.t_t, 3, self.sendData_3["vehicle"][0]):
                 self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
 
                 if self.vehicles_E[0].getPosition().x < 0:

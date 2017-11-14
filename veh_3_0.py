@@ -721,17 +721,17 @@ if __name__ == '__main__':
     v.setSize(Size(10, 5))
     vehicles_W1_S6.append(v)
 
-    # v = Vehicle()
-    # v.setPosition(Position(0 - 2 * 80, 273))
-    # v.setSpeed(Speed(2, 0))
-    # v.setSize(Size(10, 5))
-    # vehicles_W1_S6.append(v)
-    #
-    # v = Vehicle()
-    # v.setPosition(Position(0 - 2 * 100, 273))
-    # v.setSpeed(Speed(2, 0))
-    # v.setSize(Size(10, 5))
-    # vehicles_W1_S6.append(v)
+    v = Vehicle()
+    v.setPosition(Position(0 - 2 * 80, 273))
+    v.setSpeed(Speed(2, 0))
+    v.setSize(Size(10, 5))
+    vehicles_W1_S6.append(v)
+
+    v = Vehicle()
+    v.setPosition(Position(0 - 2 * 100, 273))
+    v.setSpeed(Speed(2, 0))
+    v.setSize(Size(10, 5))
+    vehicles_W1_S6.append(v)
 
     # ***************************************************
     # Vehicles from East
@@ -759,18 +759,18 @@ if __name__ == '__main__':
     v.setSpeed(Speed(3, 0))
     v.setSize(Size(10, 5))
     vehicles_E.append(v)
-    #
-    # v = Vehicle()
-    # v.setPosition(Position(600 + 2 * 100, 313))
-    # v.setSpeed(Speed(3, 0))
-    # v.setSize(Size(10, 5))
-    # vehicles_E.append(v)
-    #
-    # v = Vehicle()
-    # v.setPosition(Position(600 + 2 * 110, 313))
-    # v.setSpeed(Speed(3, 0))
-    # v.setSize(Size(10, 5))
-    # vehicles_E.append(v)
+
+    v = Vehicle()
+    v.setPosition(Position(600 + 2 * 100, 313))
+    v.setSpeed(Speed(3, 0))
+    v.setSize(Size(10, 5))
+    vehicles_E.append(v)
+
+    v = Vehicle()
+    v.setPosition(Position(600 + 2 * 110, 313))
+    v.setSpeed(Speed(3, 0))
+    v.setSize(Size(10, 5))
+    vehicles_E.append(v)
 
     # Read vehicles info from json file
     f = open('veh_info/veh.json', 'r')

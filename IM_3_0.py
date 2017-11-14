@@ -34,7 +34,6 @@ class IM():
         # Initiate intersection grid
         self.grid = {}
         self.intersec_grid = []
-        self.check_grid = []
         self.t_ahead = 35
 
         for i in range(270, 330, 10):
@@ -125,36 +124,52 @@ class IM():
 
         self.server.close()
 
+    # function to Initiate intersection grid
+    def init_intersec_grid(self, t_ahead):
+        for k in range(t_ahead):
+            for i in range(270, 330, 10):
+                for j in range(270, 330, 10):
+                    self.intersec_grid[k][(i, j)] = True
+
+    # function to update intersection grid
+    def update_intersec_grid(self, current_time, current_time_step, veh_num):
+        sa = current_time - current_time_step
+
+        self.time_step = current_time
+
+        for i in range(sa):
+            self.intersec_grid.append(copy.deepcopy(self.grid))
+            del self.intersec_grid[0]
+
+        self.r[veh_num] = 0
+
+    #  check whether grid has already been lighten up
+    def collision(self, veh_num, x, y, time):
+        if (x // 10 * 10, y // 10 * 10) in self.intersec_grid[time]:
+            if self.intersec_grid[time][(x // 10 * 10, y // 10 * 10)] == False:
+                self.beze_t[veh_num] = 2
+                return False
+            else:
+                return True
+        else:
+            return True
+
     # vehicles travel from W_1 to S_6
     # origin and destination is a pattern of (x,y)
     def light_veh_pattern1(self, veh_num, current, origin, destination, speed, current_time):
         new_position = current
         time = 0
-        # Avoid situation that grid is lighted up by same vehicle
-        check_grid = []
+
         # To light up grid(270, 270)
         check_first = False
 
         # Initiate intersection grid
         if self.time_step == 0:
-            for k in range(self.t_ahead):
-                for i in range(270, 330, 10):
-                    for j in range(270, 330, 10):
-                        self.intersec_grid[k][(i, j)] = True
+            self.init_intersec_grid(self.t_ahead)
 
         if current_time > self.time_step:
-            sa = current_time - self.time_step
-            # print('sa', sa)
-            self.time_step = current_time
-
-            # Update intersec_grid for right times
-            for i in range(sa):
-                self.intersec_grid.append(copy.deepcopy(self.grid))
-                del self.intersec_grid[0]
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
             print('Pattern1')
-
-            for i in range(veh_num):
-                self.r[i] = 0
 
         # Before veh get out of the intersection
         while new_position[1] < destination[1]:
@@ -200,51 +215,26 @@ class IM():
                 self.down_right_y[veh_num] = rec_funcs.W2S_down_right_y(new_position[1], self.r[veh_num])
 
                 # Up left
-                # print(time)
-                if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[time]:
-                    if self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] == False:
-                        print('upleft')
-                        self.beze_t[veh_num] = 2
-                        return False
-                    else:
-                        check_grid.append((self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10))
+                if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
+                    print("upleft, pattern1")
+                    return False
 
                 # Up right
-                if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in self.intersec_grid[
-                    time]:
-                    if self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] == False:
-                        if ((self.up_right_x[veh_num]) // 10 * 10,
-                            self.up_right_y[veh_num] // 10 * 10) not in check_grid:
-                            print('upright')
-                            self.beze_t[veh_num] = 2
-                            return False
-                    else:
-                        check_grid.append(((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10))
+                if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
+                    print("upright, pattern1")
+                    return False
 
                 # Down left
-                if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in self.intersec_grid[
-                    time]:
-                    if self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] == False:
-                        if (self.down_left_x[veh_num] // 10 * 10,
-                            (self.down_left_y[veh_num]) // 10 * 10) not in check_grid:
-                            print('Downleft')
-                            self.beze_t[veh_num] = 2
-                            return False
-                    else:
-                        check_grid.append(
-                            (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10))
+                if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
+                    print("downleft, pattern1")
+                    return False
 
                 # Down right
                 if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
                         self.intersec_grid[time]:
                     if self.intersec_grid[time][
                         ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] == False:
-                        if ((self.down_right_x[veh_num]) // 10 * 10,
-                            (self.down_right_y[veh_num]) // 10 * 10) not in check_grid:
-                            print('downright')
+                            print("downright, pattern1")
                             self.beze_t[veh_num] = 2
                             return False
                     else:
@@ -298,16 +288,15 @@ class IM():
                 self.intersec_grid[time][(270, 270)] = False
             check_first = False
 
-            print("check p1 current_time", current_time)
-            check_grid = []
-            print('time', time)
+            # print("check p1 current_time", current_time)
+            # print('time', time)
             # print(self.beze_t[veh_num])
-            print('new_position', new_position, 'r', self.r)
-            print(self.up_left_x[veh_num], self.up_left_y[veh_num])
-            print(self.up_right_x[veh_num], self.up_right_y[veh_num])
-            print(self.down_left_x[veh_num], self.down_left_y[veh_num])
-            print(self.down_right_x[veh_num], self.down_right_y[veh_num])
-            print(self.intersec_grid[time])
+            # print('new_position', new_position, 'r', self.r)
+            # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+            # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+            # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+            # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+            # print(self.intersec_grid[time])
             time += 1
 
         # Initiate beze_t
@@ -315,32 +304,21 @@ class IM():
 
         return True
 
-    # vehicles travel from E_5 to W_5
+    # vehicles travel from N_5 to S_5
     # origin and destination is a pattern of (x,y)
     def light_veh_pattern2(self, veh_num, current, origin, destination, speed, current_time):
         new_position = current
         time = 0
-        # Avoid situation that grid is lighted up by same vehicle
-        check_grid = []
+
         # to light up grid(320, 300)
         check_first = False
 
         # Initiate intersection grid
         if self.time_step == 0:
-            for k in range(self.t_ahead):
-                for i in range(270, 330, 10):
-                    for j in range(270, 330, 10):
-                        self.intersec_grid[k][(i, j)] = True
+            self.init_intersec_grid(self.t_ahead)
 
         if current_time > self.time_step:
-            sa = current_time - self.time_step
-            # print('sa', sa)
-            self.time_step = current_time
-
-            # Upgrade intersec_gird for right times
-            for i in range(sa):
-                self.intersec_grid.append(copy.deepcopy(self.grid))
-                del self.intersec_grid[0]
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
             print('Pattern2')
 
         # Before veh get out of the intersection
@@ -363,51 +341,25 @@ class IM():
             self.down_right_y[veh_num] = new_position[1] + 10
 
             # Up left
-            if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[
-                time]:
-                if self.intersec_grid[time][
-                    (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] == False:
-                    print("upleft, pattern2")
-                    self.beze_t[veh_num] = 2
-                    return False
-                else:
-                    check_grid.append((self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10))
+            if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
+                print("upleft, pattern2")
+                return False
 
             # Up right
-            if (self.up_right_x[veh_num] // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][
-                    ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] == False:
-                    if (self.up_right_x[veh_num] // 10 * 10,
-                        self.up_right_y[veh_num] // 10 * 10) not in check_grid:
-                        print("upright, pattern2")
-                        self.beze_t[veh_num] = 2
-                        return False
-                else:
-                    check_grid.append(
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10))
+            if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
+                print("upright, pattern2")
+                return False
 
             # Down left
-            if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][
-                    (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] == False:
-                    if (self.down_left_x[veh_num] // 10 * 10,
-                        (self.down_left_y[veh_num]) // 10 * 10) not in check_grid:
-                        print("downleft, pattern2")
-                        self.beze_t[veh_num] = 2
-                        return False
-                else:
-                    check_grid.append(
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10))
+            if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
+                print("downleft, pattern2")
+                return False
 
             # Down right
             if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
                     self.intersec_grid[time]:
                 if self.intersec_grid[time][(self.down_right_x[veh_num] // 10 * 10,
                                              self.down_right_y[veh_num] // 10 * 10)] == False:
-                    if (self.down_right_x[veh_num] // 10 * 10,
-                        self.down_right_y[veh_num] // 10 * 10) not in check_grid:
                         print("downright, pattern2")
                         self.beze_t[veh_num] = 2
                         return False
@@ -438,7 +390,6 @@ class IM():
 
             # print("check p2 current_time", current_time)
             # print(self.intersec_grid[time])
-            check_grid = []
             # print('time', time)
             # print('veh_num', veh_num)
             # print(self.beze_t)
@@ -458,25 +409,12 @@ class IM():
         new_position = current
         time = 0
 
-        # Avoid situation that grid is lighted up by same vehicle
-        check_grid = []
-
         # Initiate intersection grid
         if self.time_step == 0:
-            for k in range(self.t_ahead):
-                for i in range(270, 330, 10):
-                    for j in range(270, 330, 10):
-                        self.intersec_grid[k][(i, j)] = True
+            self.init_intersec_grid(self.t_ahead)
 
         if current_time > self.time_step:
-            sa = current_time - self.time_step
-            # print('sa', sa)
-            self.time_step = current_time
-
-            # Upgrade intersec_gird for right times
-            for i in range(sa):
-                self.intersec_grid.append(copy.deepcopy(self.grid))
-                del self.intersec_grid[0]
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
             print('Pattern3')
 
         # Before veh get out of the intersection
@@ -499,48 +437,25 @@ class IM():
             self.down_right_y[veh_num] = new_position[1] + 5
 
             # Up left
-            if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[
-                time]:
-                if self.intersec_grid[time][
-                    (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] == False:
-                    print("upleft, pattern3")
-                    return False
-                else:
-                    check_grid.append((self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10))
+            if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
+                print("upleft, pattern3")
+                return False
 
             # Up right
-            if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][
-                    (self.up_right_x[veh_num] // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] == False:
-                    if (self.up_right_x[veh_num] // 10 * 10,
-                        self.up_right_y[veh_num] // 10 * 10) not in check_grid:
-                        print("upright, pattern3")
-                        return False
-                else:
-                    check_grid.append(
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10))
+            if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
+                print("upright, pattern3")
+                return False
 
             # Down left
-            if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][
-                    (self.down_left_x[veh_num] // 10 * 10, self.down_left_y[veh_num] // 10 * 10)] == False:
-                    if (self.down_left_x[veh_num] // 10 * 10,
-                        (self.down_left_y[veh_num]) // 10 * 10) not in check_grid:
-                        print("downleft, pattern3")
-                        return False
-                else:
-                    check_grid.append(
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10))
+            if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
+                print("downleft, pattern3")
+                return False
 
             # Down right
             if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
                     self.intersec_grid[time]:
                 if self.intersec_grid[time][(self.down_right_x[veh_num] // 10 * 10,
                                              self.down_right_y[veh_num] // 10 * 10)] == False:
-                    if (self.down_right_x[veh_num] // 10 * 10,
-                        self.down_right_y[veh_num] // 10 * 10) not in check_grid:
                         print("downright, pattern3")
                         return False
                 else:
@@ -566,17 +481,16 @@ class IM():
                     self.intersec_grid[time][
                         (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
 
-            print("check p3 current_time", current_time)
+            # print("check p3 current_time", current_time)
             # print(self.intersec_grid[time])
-            check_grid = []
-            print('time', time)
+            # print('time', time)
             # print(self.beze_t[veh_num])
             # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
             # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
             # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
             # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
-            print('new_position', new_position, 'r', self.r)
-            print(self.intersec_grid[time])
+            # print('new_position', new_position, 'r', self.r)
+            # print(self.intersec_grid[time])
             time += 1
 
         # Initiate beze_t
@@ -590,31 +504,17 @@ class IM():
 
         new_position = current
         time = 0
-        # Avoid situation that grid is lighted up by same vehicle
-        check_grid = []
+
         # To light up grid(270, 270)
         check_first = False
 
         # Initiate intersection grid
         if self.time_step == 0:
-            for k in range(self.t_ahead):
-                for i in range(270, 330, 10):
-                    for j in range(270, 330, 10):
-                        self.intersec_grid[k][(i, j)] = True
+            self.init_intersec_grid(self.t_ahead)
 
         if current_time > self.time_step:
-            sa = current_time - self.time_step
-            print('sa', sa)
-            self.time_step = current_time
-
-            # Update intersec_grid for right times
-            for i in range(sa):
-                self.intersec_grid.append(copy.deepcopy(self.grid))
-                del self.intersec_grid[0]
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
             print('Pattern4')
-
-            for i in range(veh_num):
-                self.r[i] = 0
 
         # Before veh get out of the intersection
         while new_position[0] > destination[0]:
@@ -660,50 +560,25 @@ class IM():
                 self.down_right_y[veh_num] = rec_funcs.S2W_down_right_y(new_position[1], self.r[veh_num])
 
                 # Up left
-                # print(time)
-                if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[time]:
-                    if self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] == False:
-                        print('upleft')
-                        self.beze_t[veh_num] = 2
-                        return False
-                    else:
-                        check_grid.append((self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10))
+                if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
+                    print("upleft, pattern4")
+                    return False
 
                 # Up right
-                if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in self.intersec_grid[
-                    time]:
-                    if self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] == False:
-                        if ((self.up_right_x[veh_num]) // 10 * 10,
-                            self.up_right_y[veh_num] // 10 * 10) not in check_grid:
-                            print('upright')
-                            self.beze_t[veh_num] = 2
-                            return False
-                    else:
-                        check_grid.append(((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10))
+                if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
+                    print("upright, pattern4")
+                    return False
 
                 # Down left
-                if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in self.intersec_grid[
-                    time]:
-                    if self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] == False:
-                        if (self.down_left_x[veh_num] // 10 * 10,
-                            (self.down_left_y[veh_num]) // 10 * 10) not in check_grid:
-                            print('Downleft')
-                            self.beze_t[veh_num] = 2
-                            return False
-                    else:
-                        check_grid.append(
-                            (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10))
+                if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
+                    print("downleft, pattern4")
+                    return False
 
                 # Down right
                 if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
                         self.intersec_grid[time]:
                     if self.intersec_grid[time][
                         ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] == False:
-                        if ((self.down_right_x[veh_num]) // 10 * 10,
-                            (self.down_right_y[veh_num]) // 10 * 10) not in check_grid:
                             print('downright')
                             self.beze_t[veh_num] = 2
                             return False
@@ -758,8 +633,7 @@ class IM():
                 self.intersec_grid[time][(290, 320)] = False
             check_first = False
 
-            print("check p4 current_time", current_time)
-            check_grid = []
+            # print("check p4 current_time", current_time)
             # print('time', time)
             # print(self.beze_t[veh_num])
             # print('new_position', new_position, 'r', self.r)
@@ -770,7 +644,6 @@ class IM():
         self.beze_t[veh_num] = 2
 
         return True
-
 
 if __name__ == '__main__':
     test = IM().sendResult()

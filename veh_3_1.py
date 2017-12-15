@@ -1,9 +1,8 @@
 # coding:utf-8
 # Test vehicle with UDP
 # Already has three travel patterns
-# From 1107
-# Almost have achieved all basic requirements
-# Try to simplify source code
+# From 1027
+# Try to make the source clean
 
 
 import sys
@@ -302,6 +301,7 @@ class Example(QWidget):
         dictMerge = dict({"time_step": current_time}, **sendData)
         dictMerge = dict({"current_position": current_position}, **dictMerge)
         mes = bytes(json.dumps(dictMerge), encoding='utf-8')
+        # print(dictMerge)
 
         client.sendto(mes, server_address)
         data, server = client.recvfrom(max_size)
@@ -331,6 +331,7 @@ class Example(QWidget):
                    # Try to make a reservation from IM. If false, then stop before entering.
                     if self.propose(i, (veh.getPosition().x, veh.getPosition().y), (313, 270),
                                     (313, 330), veh.getSpeed().y, self.t_t, 2, self.sendData_2["vehicle"][i]):
+                   # if False:
                         self.vehicles_N[i].getPosition().y += self.vehicles_N[i].getSpeed().y
 
                         if self.vehicles_N[i].getPosition().y > 600:
@@ -338,7 +339,7 @@ class Example(QWidget):
 
                         qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
                         for i in range(11):
-                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+                             self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
                     else:
                         qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
                         for i in range(11):
@@ -367,6 +368,8 @@ class Example(QWidget):
                 if veh.getPosition().x + 10 + veh.getSpeed().x > 270 and veh.getPosition().x <= 270 - 10:
                     # Check traffic signal. True, then stop before entering.
                     if not self.propose(i, (veh.getPosition().x, veh.getPosition().y), (270, 273), (330, 330), veh.getSpeed().x, self.t_t, 1, self.sendData_1["vehicle"][i]):
+                    # if False:
+                        # print("False", (veh.getPosition().x, veh.getPosition().y))
                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
                         for j in range(11):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
@@ -445,6 +448,27 @@ class Example(QWidget):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
 
         # Vehicle Pattern3(From E4 to W4)
+        # for i, veh in enumerate(vehicles_E):
+        #     if 330 <= vehicles_E[0].getPosition().x and vehicles_E[0].getPosition().x - vehicles_E[0].getSpeed().x < 330:
+        #         if self.propose(0, (vehicles_E[0].getPosition().x, vehicles_E[0].getPosition().y), (330, 313), (270, 313), veh.getSpeed().x, self.t_t, 3, self.sendData_3["vehicle"][0]):
+        #         # if True:
+        #             self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
+        #
+        #             if self.vehicles_E[0].getPosition().x < 0:
+        #                 self.vehicles_E[0].getPosition().x = 600
+        #
+        #             qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
+        #             qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
+        #         else:
+        #             qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
+        #     else:
+        #         self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
+        #
+        #         if self.vehicles_E[0].getPosition().x < 0:
+        #             self.vehicles_E[0].getPosition().x = 600
+        #
+        #         qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
+
         for i, veh in enumerate(self.vehicles_E):
             if (veh.getPosition().x + veh.getSpeed().x,
                 veh.getPosition().y + veh.getSpeed().y) in self.collision_check_E:
@@ -550,6 +574,17 @@ class Example(QWidget):
                             for j in range(11):
                                 self.collision_check_W.append((veh.getPosition().x, veh.getPosition().y + j))
                             qp.restore()
+
+                        # Calculate the big Square's coordinate
+                        # self.S3_W4_up_left_x[i] = rec_funcs.S2W_up_left_x(veh.getPosition().x)
+                        # self.S3_W4_up_left_y[i] = rec_funcs.S2W_up_left_y(veh.getPosition().y, self.S3_W4_r[i])
+                        # self.S3_W4_down_left_x[i] = rec_funcs.S2W_down_left_x(veh.getPosition().x)
+                        # self.S3_W4_down_left_y[i] = rec_funcs.S2W_down_left_y(veh.getPosition().y, self.S3_W4_r[i])
+                        # self.S3_W4_up_right_x[i] = rec_funcs.S2W_up_right_x(veh.getPosition().x, self.S3_W4_r[i])
+                        # self.S3_W4_up_right_y[i] = rec_funcs.S2W_up_right_y(veh.getPosition().y, self.S3_W4_r[i])
+                        # self.S3_W4_down_right_x[i] = rec_funcs.S2W_down_right_x(veh.getPosition().x, self.S3_W4_r[i])
+                        # self.S3_W4_down_right_y[i] = rec_funcs.S2W_down_right_y(veh.getPosition().y, self.S3_W4_r[i])
+
 
                     # Already left intersection
                     elif -10 < veh.getPosition().x <= 270:

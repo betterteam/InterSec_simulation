@@ -7,9 +7,10 @@ from datetime import datetime
 import socket
 import json
 
-sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection')
+sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection_Ex_2')
 import rec_funcs
 import copy
+import new_Rect
 
 
 class IM():
@@ -98,8 +99,8 @@ class IM():
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
 
-            elif pattern == 2:
-                if self.light_veh_pattern2(veh_id, current, origin, destination, speed, current_time):
+            elif pattern == 21:
+                if self.light_veh_pattern21(veh_id, current, origin, destination, speed, current_time):
                     self.sendData[recData["Veh_id"]]["result"] = 1
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
@@ -207,8 +208,8 @@ class IM():
 
                 self.beze_t[veh_num] += 2
                 new_position = (x, y)
-                print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-                print(new_position)
+                # print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+                # print(new_position)
 
                 # Calculate the big Square's coordinate
                 self.up_left_x[veh_num] = rec_funcs.W2S_up_left_x(new_position[0], self.r[veh_num])
@@ -312,7 +313,7 @@ class IM():
 
     # vehicles travel from N_5 to S_5
     # origin and destination is a pattern of (x,y)
-    def light_veh_pattern2(self, veh_num, current, origin, destination, speed, current_time):
+    def light_veh_pattern21(self, veh_num, current, origin, destination, speed, current_time):
         new_position = current
         time = 0
 

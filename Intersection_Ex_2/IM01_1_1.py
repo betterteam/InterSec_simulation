@@ -42,7 +42,7 @@ class IM():
             self.intersec_grid.append(copy.deepcopy(self.grid))
 
         # Initiate veh rotating angle
-        self.veh_num = 60
+        self.veh_num = 70
         self.r = []
         for i in range(self.veh_num):
             self.r.append(0)

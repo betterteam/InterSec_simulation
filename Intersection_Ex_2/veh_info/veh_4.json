@@ -3,102 +3,102 @@
               {
                 "Veh_id": 30,
                 "arrival_time": 1,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
+                "arrival_lane": 1,
+                "origin_4": [645, 595],
+                "destination_4": [595, 645],
                 "speed": 2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 11
               },
               {
                 "Veh_id": 31,
                 "arrival_time": 2,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
+                "arrival_lane": 1,
+                "origin_4": [645, 595],
+                "destination_4": [595, 645],
                 "speed": 2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 11
               },
               {
                 "Veh_id": 32,
                 "arrival_time": 3,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
-                "speed": 2,
+                "arrival_lane": 1,
+                "origin_4": [285, 335],
+                "destination_4": [335, 285],
+                "speed": -2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 12
               },
               {
                 "Veh_id": 33,
                 "arrival_time": 4,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
-                "speed": 2,
+                "arrival_lane": 1,
+                "origin_4": [285, 335],
+                "destination_4": [335, 285],
+                "speed": -2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 12
               },
               {
                 "Veh_id": 34,
                 "arrival_time": 5,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
+                "arrival_lane": 1,
+                "origin_4": [265, 285],
+                "destination_4": [315, 335],
                 "speed": 2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 13
               },
               {
                 "Veh_id": 35,
                 "arrival_time": 6,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
+                "arrival_lane": 1,
+                "origin_4": [265, 285],
+                "destination_4": [315, 335],
                 "speed": 2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 13
               },
               {
                 "Veh_id": 36,
                 "arrival_time": 7,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
-                "speed": 2,
+                "arrival_lane": 1,
+                "origin_4": [335, 315],
+                "destination_4": [285, 265],
+                "speed": -2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 14
               },
               {
                 "Veh_id": 37,
                 "arrival_time": 8,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
-                "speed": 2,
+                "arrival_lane": 1,
+                "origin_4": [335, 315],
+                "destination_4": [285, 265],
+                "speed": -2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 14
               },
               {
                 "Veh_id": 38,
                 "arrival_time": 9,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
+                "arrival_lane": 1,
+                "origin_4": [270, 273],
+                "destination_4": [318, 320],
                 "speed": 2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 1
               },
               {
                 "Veh_id": 39,
                 "arrival_time": 10,
-                "arrival_lane": 3,
-                "origin_1": [293, 330],
-                "destination_1": [270, 306],
+                "arrival_lane": 1,
+                "origin_4": [270, 273],
+                "destination_4": [318, 320],
                 "speed": 2,
                 "current_time": 0,
-                "pattern": 4
+                "pattern": 1
               }
             ]
 }

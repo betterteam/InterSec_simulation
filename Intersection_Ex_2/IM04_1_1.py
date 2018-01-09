@@ -1,15 +1,16 @@
 # coding:utf-8
-# From 1213
-# With two traffic lines
+# From 180103
+# add function check_lighten()
 
 import sys
 from datetime import datetime
 import socket
 import json
 
-sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection')
+sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection_Ex_2')
 import rec_funcs
 import copy
+import new_Rect
 
 
 class IM():
@@ -41,7 +42,7 @@ class IM():
             self.intersec_grid.append(copy.deepcopy(self.grid))
 
         # Initiate veh rotating angle
-        self.veh_num = 60
+        self.veh_num = 70
         self.r = []
         for i in range(self.veh_num):
             self.r.append(0)
@@ -82,40 +83,84 @@ class IM():
             data = data.decode('utf-8')
             recData = json.loads(data)
 
+            # print(recData)
+
             veh_id = recData["Veh_id"]
             current = tuple(recData["current_position"])
-            origin = tuple(recData["origin_2"])
-            destination = tuple(recData["destination_2"])
+            origin = tuple(recData["origin_4"])
+            destination = tuple(recData["destination_4"])
             speed = recData["speed"]
             current_time = recData["time_step"]
             pattern = recData["pattern"]
 
-            if pattern == 1:
-                if self.light_veh_pattern1(veh_id, current, origin, destination, speed, current_time):
+            if pattern == 11:
+                if self.light_veh_pattern11(veh_id, current, origin, destination, speed, current_time):
                     self.sendData[recData["Veh_id"]]["result"] = 1
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
 
-            elif pattern == 2:
-                if self.light_veh_pattern2(veh_id, current, origin, destination, speed, current_time):
+            elif pattern == 12:
+                if self.light_veh_pattern12(veh_id, current, origin, destination, speed, current_time):
                     self.sendData[recData["Veh_id"]]["result"] = 1
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
 
-            elif pattern == 3:
-                if self.light_veh_pattern3(veh_id, current, origin, destination, speed, current_time):
+            elif pattern == 13:
+                if self.light_veh_pattern13(veh_id, current, origin, destination, speed, current_time):
                     self.sendData[recData["Veh_id"]]["result"] = 1
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
 
-            elif pattern == 4:
-                if self.light_veh_pattern4(veh_id, current, origin, destination, speed, current_time):
+            elif pattern == 14:
+                if self.light_veh_pattern14(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 21:
+                if self.light_veh_pattern21(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 22:
+                if self.light_veh_pattern22(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 23:
+                if self.light_veh_pattern23(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 24:
+                if self.light_veh_pattern24(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 31:
+                if self.light_veh_pattern31(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 32:
+                if self.light_veh_pattern32(veh_id, current, origin, destination, speed, current_time):
+                    self.sendData[recData["Veh_id"]]["result"] = 1
+                else:
+                    self.sendData[recData["Veh_id"]]["result"] = 0
+
+            elif pattern == 33:
+                if self.light_veh_pattern33(veh_id, current, origin, destination, speed, current_time):
                     self.sendData[recData["Veh_id"]]["result"] = 1
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
 
             else:
-                if self.light_veh_pattern5(veh_id, current, origin, destination, speed, current_time):
+                if self.light_veh_pattern34(veh_id, current, origin, destination, speed, current_time):
                     self.sendData[recData["Veh_id"]]["result"] = 1
                 else:
                     self.sendData[recData["Veh_id"]]["result"] = 0
@@ -156,9 +201,88 @@ class IM():
         else:
             return True
 
-    # vehicles travel from W_1 to S_6
+    def check_lighten(self, veh_num, up_left_x, up_left_y, up_right_x, up_right_y, down_left_x, down_left_y, down_right_x, down_right_y, time):
+        # Up left
+        if not self.collision(veh_num, up_left_x, up_left_y, time):
+            print("upleft, pattern2", veh_num)
+            return False
+
+        # Up right
+        if not self.collision(veh_num, up_right_x, up_right_y, time):
+            print("upright, pattern2", veh_num)
+            return False
+
+        # Down left
+        if not self.collision(veh_num, down_left_x, down_left_y, time):
+            print("downleft, pattern2", veh_num)
+            return False
+
+        # Down right
+        if ((down_right_x) // 10 * 10, (down_right_y) // 10 * 10) in \
+                self.intersec_grid[time]:
+            if self.intersec_grid[time][(down_right_x // 10 * 10,
+                                         down_right_y // 10 * 10)] == False:
+                print("downright, pattern2", veh_num)
+                self.beze_t[veh_num] = 2
+                return False
+            # lighten up all four points together
+            else:
+                if (up_left_x // 10 * 10, up_left_y // 10 * 10) in self.intersec_grid[time]:
+                    self.intersec_grid[time][
+                        (up_left_x // 10 * 10, up_left_y // 10 * 10)] = False
+                if (up_right_x // 10 * 10, up_right_y // 10 * 10) in self.intersec_grid[
+                    time]:
+                    self.intersec_grid[time][
+                        (up_right_x // 10 * 10, up_right_y // 10 * 10)] = False
+                if (down_left_x // 10 * 10, down_left_y // 10 * 10) in self.intersec_grid[
+                    time]:
+                    self.intersec_grid[time][
+                        (down_left_x // 10 * 10, down_left_y // 10 * 10)] = False
+                if (down_right_x // 10 * 10, down_right_y // 10 * 10) in self.intersec_grid[
+                    time]:
+                    self.intersec_grid[time][(
+                        down_right_x // 10 * 10, down_right_y // 10 * 10)] = False
+        # lighten up all three points together
+        else:
+            if (up_left_x // 10 * 10, up_left_y // 10 * 10) in self.intersec_grid[
+                time]:
+                self.intersec_grid[time][
+                    (up_left_x // 10 * 10, up_left_y // 10 * 10)] = False
+            if (up_right_x // 10 * 10, up_right_y // 10 * 10) in \
+                    self.intersec_grid[time]:
+                self.intersec_grid[time][
+                    (up_right_x // 10 * 10, up_right_y // 10 * 10)] = False
+            if (down_left_x // 10 * 10, down_left_y // 10 * 10) in \
+                    self.intersec_grid[time]:
+                self.intersec_grid[time][
+                    (down_left_x // 10 * 10, down_left_y // 10 * 10)] = False
+            # situation that middle grid exists
+            # x coordinate is the reason
+            if abs(self.up_left_x[veh_num] - self.up_right_x[veh_num]) > 10:
+                if ((self.up_left_x[veh_num] + 10) // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in \
+                        self.intersec_grid[time]:
+                    self.intersec_grid[time][
+                        ((self.up_left_x[veh_num] + 10) // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
+                if ((self.up_left_x[veh_num] + 10) // 10 * 10, self.down_left_y[veh_num] // 10 * 10) in \
+                        self.intersec_grid[time]:
+                    self.intersec_grid[time][
+                        ((self.up_left_x[veh_num] + 10) // 10 * 10,self.down_left_y[veh_num] // 10 * 10)] = False
+            # y coordinate is the reason
+            if abs(self.up_left_y[veh_num] - self.down_left_y[veh_num]) > 10:
+                if (self.up_left_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10) in \
+                        self.intersec_grid[time]:
+                    self.intersec_grid[time][
+                        (self.up_left_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10)] = False
+                if (self.up_right_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10) in \
+                        self.intersec_grid[time]:
+                    self.intersec_grid[time][
+                        (self.up_right_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10)] = False
+
+        return True
+
+    # vehicles travel from N_1 to W_6
     # origin and destination is a pattern of (x,y)
-    def light_veh_pattern1(self, veh_num, current, origin, destination, speed, current_time):
+    def light_veh_pattern11(self, veh_num, current, origin, destination, speed, current_time):
         new_position = current
         time = 0
 
@@ -171,129 +295,639 @@ class IM():
 
         if current_time > self.time_step:
             self.update_intersec_grid(current_time, self.time_step, veh_num)
-            print('Pattern1')
+            print('Pattern11')
 
         # Before veh get out of the intersection
         while new_position[1] < destination[1]:
 
             # Check if all parts of veh have been in intersection
-            if new_position[0] + speed <= origin[0] + 2:
-                if not self.intersec_grid[time][(270, 270)]:
+            if new_position[1] == 594:
+                if not self.intersec_grid[time][(640, 600)]:
                     print('firstgrid')
                     return False
                 else:
-                    new_position = (new_position[0] + speed, new_position[1])
+                    new_position = (origin[0], origin[1])
                     check_first = True
+                    # print("check p11 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
+
             else:
-                # All parts of veh have been in intersection
+
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * origin[0] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * destination[1] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[1]
+
+                new_position = (x, y)
+
+                self.beze_t[veh_num] += 2
+
+                print(new_position[1])
+                print(origin[1])
+                print(-(new_position[1] - (origin[1] + speed)) / 50)
                 # Calculate rotation angle
-                if ((new_position[1] - 270 + speed) / 60) * 90 > 15:
-                    self.r[veh_num] = ((new_position[1] - 270 + 3) / 60) * 90
+                if 15.0 < (-(origin[1] - (new_position[1] + speed)) / 50) * 90 <= 90.0:
+                    self.r[veh_num] = (-(origin[1] - (new_position[1] + speed)) / 50) * 90
+                elif (-(origin[1] - (new_position[1] + speed)) / 50) * 90 > 90:
+                    self.r[veh_num] = 90
                 else:
                     self.r[veh_num] = 0
 
-                if ((new_position[1] - 270 + speed) / 60) * 90 > 90:
-                    self.r[veh_num] = 90
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
+
+                if check_first:
+                    self.intersec_grid[time][(640, 600)] = False
+                check_first = False
+
+                # print("check p11 current_time", current_time)
+                # print('time', time)
+                # print(self.beze_t[veh_num])
+                # print('new_position', new_position, 'r', self.r[veh_num])
+                # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                # print(self.intersec_grid[time])
+                time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    def light_veh_pattern12(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # To light up grid(270, 270)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern12')
+
+        # Before veh get out of the intersection
+        while new_position[1] > destination[1]:
+            # Check if all parts of veh have been in intersection
+            if new_position[1] == 666:
+                if not self.intersec_grid[time][(610, 650)]:
+                    print('firstgrid')
+                    return False
+                else:
+                    new_position = (origin[0], origin[1])
+                    check_first = True
+                    # print("check p12 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
+
+            else:
 
                 # Calculate trajectory by using Bezier Curve
-                x = pow(1 - (self.beze_t[veh_num] / 60), 2) * 270 + 2 * (self.beze_t[veh_num] / 60) * (
-                    1 - self.beze_t[veh_num] / 60) * 330 + pow(
-                    self.beze_t[veh_num] / 60, 2) * 330
-                y = pow(1 - (self.beze_t[veh_num] / 60), 2) * 273 + 2 * (self.beze_t[veh_num] / 60) * (
-                    1 - self.beze_t[veh_num] / 60) * 273 + pow(
-                    self.beze_t[veh_num] / 60, 2) * 330
+                x = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * origin[0] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * destination[1] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[1]
 
-                self.beze_t[veh_num] += 2
                 new_position = (x, y)
 
-                # Calculate the big Square's coordinate
-                self.up_left_x[veh_num] = rec_funcs.W2S_up_left_x(new_position[0], self.r[veh_num])
-                self.up_left_y[veh_num] = rec_funcs.W2S_up_left_y(new_position[1])
-                self.down_left_x[veh_num] = rec_funcs.W2S_down_left_x(new_position[0], self.r[veh_num])
-                self.down_left_y[veh_num] = rec_funcs.W2S_down_left_y(new_position[1], self.r[veh_num])
-                self.up_right_x[veh_num] = rec_funcs.W2S_up_right_x(new_position[0], self.r[veh_num])
-                self.up_right_y[veh_num] = rec_funcs.W2S_up_right_y(new_position[1])
-                self.down_right_x[veh_num] = rec_funcs.W2S_down_right_x(new_position[0], self.r[veh_num])
-                self.down_right_y[veh_num] = rec_funcs.W2S_down_right_y(new_position[1], self.r[veh_num])
+                self.beze_t[veh_num] += 2
 
-                # Up left
-                if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
-                    print("upleft, pattern1")
-                    return False
-
-                # Up right
-                if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
-                    print("upright, pattern1")
-                    return False
-
-                # Down left
-                if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
-                    print("downleft, pattern1")
-                    return False
-
-                # Down right
-                if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
-                        self.intersec_grid[time]:
-                    if self.intersec_grid[time][
-                        ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] == False:
-                            print("downright, pattern1")
-                            self.beze_t[veh_num] = 2
-                            return False
-                    else:
-                        self.intersec_grid[time][
-                            (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                        self.intersec_grid[time][
-                            ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                        self.intersec_grid[time][
-                            (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                        self.intersec_grid[time][
-                            ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] = False
-                # Situation that down_right is out of the region of inter_sec grid
+                # Calculate rotation angle
+                if 15.0 < ((origin[1] - (new_position[1] + speed)) / 50) * 90 <= 90.0:
+                    self.r[veh_num] = ((origin[1] - (new_position[1] + speed)) / 50) * 90
+                elif ((origin[1] - (new_position[1] + speed)) / 50) * 90 > 90:
+                    self.r[veh_num] = 90
                 else:
-                    if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[
-                        time]:
-                        self.intersec_grid[time][
-                            (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                    if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in \
-                            self.intersec_grid[time]:
-                        self.intersec_grid[time][
-                            ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                    if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in \
-                            self.intersec_grid[time]:
-                        self.intersec_grid[time][
-                            (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                    # situation that middle grid exists
-                    # x coordinate is the reason
-                    if abs(self.up_left_x[veh_num] - self.up_right_x[veh_num]) > 10:
-                        if ((self.up_left_x[veh_num] + 10) // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                ((self.up_left_x[veh_num] + 10) // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                        if ((self.up_left_x[veh_num] + 10) // 10 * 10, self.down_left_y[veh_num] // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                ((self.up_left_x[veh_num] + 10) // 10 * 10,
-                                 self.down_left_y[veh_num] // 10 * 10)] = False
-                    # y coordinate is the reason
-                    if abs(self.up_left_y[veh_num] - self.down_left_y[veh_num]) > 10:
-                        if (self.up_left_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                (self.up_left_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10)] = False
-                        if (self.up_right_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                (
-                                self.up_right_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10)] = False
+                    self.r[veh_num] = 0
+
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
+
+                if check_first:
+                    self.intersec_grid[time][(610, 650)] = False
+                check_first = False
+
+                # print("check p12 current_time", current_time)
+                # print('time', time)
+                # print(self.beze_t[veh_num])
+                # print('new_position', new_position, 'r', self.r[veh_num])
+                # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                # print(self.intersec_grid[time])
+                time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    # vehicles travel from W_1 to S_6
+    # origin and destination is a pattern of (x,y)
+    def light_veh_pattern13(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # To light up grid(270, 270)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern13')
+
+        # Before veh get out of the intersection
+        while new_position[0] < destination[0]:
+
+            # Check if all parts of veh have been in intersection
+            if new_position[0] == 594:
+                if not self.intersec_grid[time][(600, 610)]:
+                    print('firstgrid')
+                    return False
+                else:
+                    new_position = (origin[0], origin[1])
+                    check_first = True
+                    # print("check p13 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position, 'r', self.r[veh_num])
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
+            else:
+
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * destination[0] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * origin[1] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[1]
+
+                new_position = (x, y)
+
+                self.beze_t[veh_num] += 2
+
+                # Calculate rotation angle
+                if 15.0 < (-(origin[0] - (new_position[0] + speed)) / 50) * 90 <= 90.0:
+                    self.r[veh_num] = (-(origin[0] - (new_position[0] + speed)) / 50) * 90
+                elif (-(origin[0] - (new_position[0] + speed)) / 50) * 90 > 90:
+                    self.r[veh_num] = 90
+                else:
+                    self.r[veh_num] = 0
+
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
+
+                if check_first:
+                    self.intersec_grid[time][(600, 610)] = False
+                check_first = False
+
+                # print("check p13 current_time", current_time)
+                # print('time', time)
+                # print(self.beze_t[veh_num])
+                # print('new_position', new_position, 'r', self.r[veh_num])
+                # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                # print(self.intersec_grid[time])
+                time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    # vehicles travel from E_5 to N_2
+    # origin and destination is a pattern of (x,y)
+    def light_veh_pattern14(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # To light up grid(270, 270)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern14')
+
+        # Before veh get out of the intersection
+        while new_position[0] > destination[0]:
+
+            # Check if all parts of veh have been in intersection
+            if new_position[0] == 666:
+                if not self.intersec_grid[time][(650, 640)]:
+                    print('firstgrid')
+                    return False
+                else:
+                    new_position = (origin[0], origin[1])
+                    check_first = True
+                    # print("check p14 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
+            else:
+
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * destination[0] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 50), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 50) * (
+                    1 - self.beze_t[veh_num] / 50) * origin[1] + pow(
+                    self.beze_t[veh_num] / 50, 2) * destination[1]
+
+                new_position = (x, y)
+
+                self.beze_t[veh_num] += 2
+
+                # Calculate rotation angle
+                if 15.0 < ((origin[0] - (new_position[0] + speed)) / 50) * 90 <= 90.0:
+                    self.r[veh_num] = ((origin[0] - (new_position[0] + speed)) / 50) * 90
+                elif ((origin[0] - (new_position[0] + speed)) / 50) * 90 > 90:
+                    self.r[veh_num] = 90
+                else:
+                    self.r[veh_num] = 0
+
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_t_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
+
+                if check_first:
+                    self.intersec_grid[time][(650, 640)] = False
+                check_first = False
+
+                # print("check p14 current_time", current_time)
+                # print('time', time)
+                # print(self.beze_t[veh_num])
+                # print('new_position', new_position, 'r', self.r[veh_num])
+                # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                # print(self.intersec_grid[time])
+                time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    # vehicles travel from N_5 to S_5
+    # origin and destination is a pattern of (x,y)
+    def light_veh_pattern21(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # to light up grid(320, 300)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern21')
+
+        # Before veh get out of the intersection
+        while new_position[1] < destination[1]:
+
+            # Calculate trajectory by using Bezier Curve
+            x = new_position[0]
+            y = new_position[1] + speed
+
+            new_position = (x, y)
+
+            # Calculate the big Square's coordinate
+            (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+            (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+            (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+            (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+            if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], self.up_right_x[veh_num], self.up_right_y[veh_num],
+                               self.down_left_x[veh_num], self.down_left_y[veh_num], self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                return False
+
+            print("check p21 current_time", current_time)
+            # print(self.intersec_grid[time])
+            # print('time', time)
+            # print('veh_num', veh_num)
+            # print(self.beze_t)
+            # print(self.beze_t[veh_num])
+            print('new_position', new_position)
+            # print(self.intersec_grid[time])
+            time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    def light_veh_pattern22(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # to light up grid(320, 300)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern22')
+
+        # Before veh get out of the intersection
+        while new_position[1] > destination[1]:
+
+            # Calculate trajectory by using Bezier Curve
+            x = new_position[0]
+            y = new_position[1] + speed
+
+            new_position = (x, y)
+
+            # Calculate the big Square's coordinate
+            (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+            (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+            (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+            (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+            if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], self.up_right_x[veh_num], self.up_right_y[veh_num],
+                               self.down_left_x[veh_num], self.down_left_y[veh_num], self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                return False
+
+            # print("check p22 current_time", current_time)
+            # print(self.intersec_grid[time])
+            # print('time', time)
+            # print('veh_num', veh_num)
+            # print(self.beze_t)
+            # print(self.beze_t[veh_num])
+            # print('new_position', new_position)
+            # print(self.intersec_grid[time])
+            time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    def light_veh_pattern23(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # to light up grid(320, 300)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern22')
+
+        # Before veh get out of the intersection
+        while new_position[0] < destination[0]:
+
+            # Calculate trajectory by using Bezier Curve
+            x = new_position[0] + speed
+            y = new_position[1]
+
+            new_position = (x, y)
+
+            # Calculate the big Square's coordinate
+            (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+            (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+            (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+            (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+            if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], self.up_right_x[veh_num], self.up_right_y[veh_num],
+                               self.down_left_x[veh_num], self.down_left_y[veh_num], self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                return False
+
+            # print("check p23 current_time", current_time)
+            # print(self.intersec_grid[time])
+            # print('time', time)
+            # print('veh_num', veh_num)
+            # print(self.beze_t)
+            # print(self.beze_t[veh_num])
+            # print('new_position', new_position)
+            # print(self.intersec_grid[time])
+            time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    def light_veh_pattern24(self, veh_num, current, origin, destination, speed, current_time):
+        new_position = current
+        time = 0
+
+        # to light up grid(320, 300)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern22')
+
+        # Before veh get out of the intersection
+        while new_position[0] > destination[0]:
+
+            # Calculate trajectory by using Bezier Curve
+            x = new_position[0] + speed
+            y = new_position[1]
+
+            new_position = (x, y)
+
+            # Calculate the big Square's coordinate
+            (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+            (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+            (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+            (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+            if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], self.up_right_x[veh_num], self.up_right_y[veh_num],
+                               self.down_left_x[veh_num], self.down_left_y[veh_num], self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                return False
+
+            # print("check p24 current_time", current_time)
+            # print(self.intersec_grid[time])
+            # print('time', time)
+            # print('veh_num', veh_num)
+            # print(self.beze_t)
+            # print(self.beze_t[veh_num])
+            # print('new_position', new_position)
+            # print(self.intersec_grid[time])
+            time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    # vehicles travel from N_5 to E_2
+    # origin and destination is a pattern of (x,y)
+    def light_veh_pattern31(self, veh_num, current, origin, destination, speed, current_time):
+
+        new_position = current
+        time = 0
+
+        # To light up grid(270, 270)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern31')
+
+        # Before veh get out of the intersection
+        while new_position[1] < destination[1]:
+            if new_position[1] == 594:
+                if not self.intersec_grid[time][(640, 600)]:
+                    print('firstgrid')
+                    return False
+                else:
+                    new_position = (origin[0], origin[1])
+                    check_first = True
+                    # print("check p31 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
+            else:
+                # All parts of veh have been in intersection
+
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * origin[0] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * destination[1] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[1]
+
+                new_position = (x, y)
+
+                # Calculate rotation angle
+                if 15.0 < (-(origin[1] - (new_position[1] + speed)) / 20) * 90 <= 90.0:
+                    self.r[veh_num] = -(-(origin[1] - (new_position[1] + speed)) / 20) * 90
+                elif (-(origin[1] - (new_position[1] + speed)) / 20) * 90 > 90:
+                    self.r[veh_num] = -90
+                else:
+                    self.r[veh_num] = 0
+
+                self.beze_t[veh_num] += 2
+
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
 
             if check_first:
-                self.intersec_grid[time][(270, 270)] = False
+                self.intersec_grid[time][(640, 600)] = False
             check_first = False
 
-            # print("check p1 current_time", current_time)
+            # print("check p31 current_time", current_time)
             # print('time', time)
             # print(self.beze_t[veh_num])
-            # print('new_position', new_position, 'r', self.r)
+            # print('new_position', new_position, 'r:', self.r[veh_num])
             # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
             # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
             # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
@@ -306,203 +940,9 @@ class IM():
 
         return True
 
-    # vehicles travel from N_5 to S_5
-    # origin and destination is a pattern of (x,y)
-    def light_veh_pattern2(self, veh_num, current, origin, destination, speed, current_time):
-        new_position = current
-        time = 0
-
-        # to light up grid(320, 300)
-        check_first = False
-
-        # Initiate intersection grid
-        if self.time_step == 0:
-            self.init_intersec_grid(self.t_ahead)
-
-        if current_time > self.time_step:
-            self.update_intersec_grid(current_time, self.time_step, veh_num)
-            print('Pattern2')
-
-        # Before veh get out of the intersection
-        while new_position[1] < destination[1]:
-
-            # Calculate trajectory by using Bezier Curve
-            x = new_position[0]
-            y = new_position[1] + speed
-
-            new_position = (x, y)
-
-            # Calculate the big Square's coordinate
-            self.up_left_x[veh_num] = new_position[0]
-            self.up_left_y[veh_num] = new_position[1]
-            self.down_left_x[veh_num] = new_position[0]
-            self.down_left_y[veh_num] = new_position[1] + 10
-            self.up_right_x[veh_num] = new_position[0] + 5
-            self.up_right_y[veh_num] = new_position[1]
-            self.down_right_x[veh_num] = new_position[0] + 5
-            self.down_right_y[veh_num] = new_position[1] + 10
-
-            # Up left
-            if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
-                print("upleft, pattern2")
-                return False
-
-            # Up right
-            if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
-                print("upright, pattern2")
-                return False
-
-            # Down left
-            if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
-                print("downleft, pattern2")
-                return False
-
-            # Down right
-            if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][(self.down_right_x[veh_num] // 10 * 10,
-                                             self.down_right_y[veh_num] // 10 * 10)] == False:
-                        print("downright, pattern2")
-                        self.beze_t[veh_num] = 2
-                        return False
-                else:
-                    self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                    self.intersec_grid[time][(
-                        (self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] = False
-
-            else:
-                if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[
-                    time]:
-                    self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in \
-                        self.intersec_grid[time]:
-                    self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in \
-                        self.intersec_grid[time]:
-                    self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-
-
-            # print("check p2 current_time", current_time)
-            # print(self.intersec_grid[time])
-            # print('time', time)
-            # print('veh_num', veh_num)
-            # print(self.beze_t)
-            # print(self.beze_t[veh_num])
-            # print('new_position', new_position, 'r', self.r)
-            # print(self.intersec_grid[time])
-            time += 1
-
-        # Initiate beze_t
-        self.beze_t[veh_num] = 2
-
-        return True
-
-    # vehicles travel from E_5 to W_5
-    # origin and destination is a pattern of (x,y)
-    def light_veh_pattern3(self, veh_num, current, origin, destination, speed, current_time):
-        new_position = current
-        time = 0
-
-        # Initiate intersection grid
-        if self.time_step == 0:
-            self.init_intersec_grid(self.t_ahead)
-
-        if current_time > self.time_step:
-            self.update_intersec_grid(current_time, self.time_step, veh_num)
-            print('Pattern3')
-
-        # Before veh get out of the intersection
-        while new_position[0] > destination[0] - 10:
-
-            # Calculate trajectory by using Bezier Curve
-            x = new_position[0] - speed
-            y = new_position[1]
-
-            new_position = (x, y)
-
-            # Calculate the big Square's coordinate
-            self.up_left_x[veh_num] = new_position[0]
-            self.up_left_y[veh_num] = new_position[1]
-            self.down_left_x[veh_num] = new_position[0]
-            self.down_left_y[veh_num] = new_position[1] + 5
-            self.up_right_x[veh_num] = new_position[0] + 10
-            self.up_right_y[veh_num] = new_position[1]
-            self.down_right_x[veh_num] = new_position[0] + 10
-            self.down_right_y[veh_num] = new_position[1] + 5
-
-            # Up left
-            if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
-                print("upleft, pattern3")
-                return False
-
-            # Up right
-            if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
-                print("upright, pattern3")
-                return False
-
-            # Down left
-            if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
-                print("downleft, pattern3")
-                return False
-
-            # Down right
-            if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][(self.down_right_x[veh_num] // 10 * 10,
-                                             self.down_right_y[veh_num] // 10 * 10)] == False:
-                        print("downright, pattern3")
-                        return False
-                else:
-                    self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] = False
-
-            else:
-                if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[time]:
-                    self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in self.intersec_grid[
-                    time]:
-                    self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in self.intersec_grid[
-                    time]:
-                    self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-
-            # print("check p3 current_time", current_time)
-            # print(self.intersec_grid[time])
-            # print('time', time)
-            # print(self.beze_t[veh_num])
-            print(self.up_left_x[veh_num], self.up_left_y[veh_num])
-            print(self.up_right_x[veh_num], self.up_right_y[veh_num])
-            print(self.down_left_x[veh_num], self.down_left_y[veh_num])
-            print(self.down_right_x[veh_num], self.down_right_y[veh_num])
-            # print('new_position', new_position, 'r', self.r)
-            print(self.intersec_grid[time])
-            time += 1
-
-        # Initiate beze_t
-        self.beze_t[veh_num] = 2
-
-        return True
-
     # vehicles travel from S_3 to W_4
     # origin and destination is a pattern of (x,y)
-    def light_veh_pattern4(self, veh_num, current, origin, destination, speed, current_time):
+    def light_veh_pattern32(self, veh_num, current, origin, destination, speed, current_time):
 
         new_position = current
         time = 0
@@ -516,129 +956,75 @@ class IM():
 
         if current_time > self.time_step:
             self.update_intersec_grid(current_time, self.time_step, veh_num)
-            print('Pattern4')
+            print('Pattern32')
 
         # Before veh get out of the intersection
-        while new_position[0] > destination[0]:
-            print('***************************************************')
-            # Check if all parts of veh have been in intersection
-            if origin[1] - (new_position[1] - speed) < 10:
-                if not self.intersec_grid[time][(290, 320)]:
+        while new_position[1] > destination[1]:
+            if new_position[1] == 666:
+                if not self.intersec_grid[time][(610, 650)]:
                     print('firstgrid')
                     return False
                 else:
-                    new_position = (new_position[0], new_position[1] - speed)
+                    new_position = (origin[0], origin[1])
                     check_first = True
+                    # print("check p32 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
             else:
                 # All parts of veh have been in intersection
+
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * origin[0] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * destination[1] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[1]
+
+                new_position = (x, y)
+
                 # Calculate rotation angle
-                if ((330 - new_position[1] - speed) / 22) * 90 > 15:
-                    self.r[veh_num] = ((330 - new_position[1] - speed) / 22) * 90
+                if 15.0 < ((origin[1] - (new_position[1] + speed)) / 20) * 90 <= 90.0:
+                    self.r[veh_num] = ((origin[1] - (new_position[1] + speed)) / 20) * 90
+                elif ((origin[1] - (new_position[1] + speed)) / 20) * 90 > 90:
+                    self.r[veh_num] = 90
                 else:
                     self.r[veh_num] = 0
 
-                if ((330 - new_position[1] - speed) / 22) * 90 > 90:
-                    self.r[veh_num] = 90
-
-                # Calculate trajectory by using Bezier Curve
-                x = pow(1 - (self.beze_t[veh_num] / 22), 2) * 293 + 2 * (self.beze_t[veh_num] / 22) * (
-                    1 - self.beze_t[veh_num] / 22) * 293 + pow(
-                    self.beze_t[veh_num] / 22, 2) * 270
-                y = pow(1 - (self.beze_t[veh_num] / 22), 2) * 320 + 2 * (self.beze_t[veh_num] / 22) * (
-                    1 - self.beze_t[veh_num] / 22) * 306 + pow(
-                    self.beze_t[veh_num] / 22, 2) * 306
-
                 self.beze_t[veh_num] += 2
-                new_position = (x, y)
+
 
                 # Calculate the big Square's coordinate
-                self.up_left_x[veh_num] = rec_funcs.S2W_up_left_x(new_position[0])
-                self.up_left_y[veh_num] = rec_funcs.S2W_up_left_y(new_position[1], self.r[veh_num])
-                self.down_left_x[veh_num] = rec_funcs.S2W_down_left_x(new_position[0])
-                self.down_left_y[veh_num] = rec_funcs.S2W_down_left_y(new_position[1], self.r[veh_num])
-                self.up_right_x[veh_num] = rec_funcs.S2W_up_right_x(new_position[0], self.r[veh_num])
-                self.up_right_y[veh_num] = rec_funcs.S2W_up_right_y(new_position[1], self.r[veh_num])
-                self.down_right_x[veh_num] = rec_funcs.S2W_down_right_x(new_position[0], self.r[veh_num])
-                self.down_right_y[veh_num] = rec_funcs.S2W_down_right_y(new_position[1], self.r[veh_num])
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
 
-                # Up left
-                if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
-                    print("upleft, pattern4")
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
                     return False
-
-                # Up right
-                if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
-                    print("upright, pattern4")
-                    return False
-
-                # Down left
-                if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
-                    print("downleft, pattern4")
-                    return False
-
-                # Down right
-                if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
-                        self.intersec_grid[time]:
-                    if self.intersec_grid[time][
-                        ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] == False:
-                            print('downright')
-                            self.beze_t[veh_num] = 2
-                            return False
-                    else:
-                        self.intersec_grid[time][
-                            (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                        self.intersec_grid[time][
-                            ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                        self.intersec_grid[time][
-                            (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                        self.intersec_grid[time][
-                            ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] = False
-                # Situation that down_right is out of the region of inter_sec grid
-                else:
-                    if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[
-                        time]:
-                        self.intersec_grid[time][
-                            (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                    if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in \
-                            self.intersec_grid[time]:
-                        self.intersec_grid[time][
-                            ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                    if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in \
-                            self.intersec_grid[time]:
-                        self.intersec_grid[time][
-                            (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                    # situation that middle grid exists
-                    # x coordinate is the reason
-                    if abs(self.up_left_x[veh_num] - self.up_right_x[veh_num]) > 10:
-                        if ((self.up_left_x[veh_num] + 10) // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                ((self.up_left_x[veh_num] + 10) // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                        if ((self.up_left_x[veh_num] + 10) // 10 * 10, self.down_left_y[veh_num] // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                ((self.up_left_x[veh_num] + 10) // 10 * 10,
-                                 self.down_left_y[veh_num] // 10 * 10)] = False
-                    # y coordinate is the reason
-                    if abs(self.up_left_y[veh_num] - self.down_left_y[veh_num]) > 10:
-                        if (self.up_left_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                (self.up_left_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10)] = False
-                        if (self.up_right_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10) in \
-                                self.intersec_grid[time]:
-                            self.intersec_grid[time][
-                                (
-                                self.up_right_x[veh_num] // 10 * 10, (self.up_left_y[veh_num] + 10) // 10 * 10)] = False
 
             if check_first:
-                self.intersec_grid[time][(290, 320)] = False
+                self.intersec_grid[time][(610, 650)] = False
             check_first = False
 
-            # print("check p4 current_time", current_time)
+            # print("check p32 current_time", current_time)
             # print('time', time)
             # print(self.beze_t[veh_num])
-            # print('new_position', new_position, 'r', self.r)
+            # print('new_position', new_position, 'r:', self.r[veh_num])
+            # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+            # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+            # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+            # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
             # print(self.intersec_grid[time])
             time += 1
 
@@ -647,13 +1033,14 @@ class IM():
 
         return True
 
-    # vehicles travel from N2_5 to S2_5
+    # vehicles travel from W_2 to N_2
     # origin and destination is a pattern of (x,y)
-    def light_veh_pattern5(self, veh_num, current, origin, destination, speed, current_time):
+    def light_veh_pattern33(self, veh_num, current, origin, destination, speed, current_time):
+
         new_position = current
         time = 0
 
-        # to light up grid(320, 300)
+        # To light up grid(270, 270)
         check_first = False
 
         # Initiate intersection grid
@@ -662,81 +1049,166 @@ class IM():
 
         if current_time > self.time_step:
             self.update_intersec_grid(current_time, self.time_step, veh_num)
-            print('Pattern2')
+            print('Pattern33')
 
         # Before veh get out of the intersection
-        while new_position[1] < destination[1]:
-
-            # Calculate trajectory by using Bezier Curve
-            x = new_position[0]
-            y = new_position[1] + speed
-
-            new_position = (x, y)
-
-            # Calculate the big Square's coordinate
-            self.up_left_x[veh_num] = new_position[0]
-            self.up_left_y[veh_num] = new_position[1]
-            self.down_left_x[veh_num] = new_position[0]
-            self.down_left_y[veh_num] = new_position[1] + 10
-            self.up_right_x[veh_num] = new_position[0] + 5
-            self.up_right_y[veh_num] = new_position[1]
-            self.down_right_x[veh_num] = new_position[0] + 5
-            self.down_right_y[veh_num] = new_position[1] + 10
-
-            # Up left
-            if not self.collision(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num], time):
-                print("upleft, pattern5")
-                return False
-
-            # Up right
-            if not self.collision(veh_num, self.up_right_x[veh_num], self.up_right_y[veh_num], time):
-                print("upright, pattern5")
-                return False
-
-            # Down left
-            if not self.collision(veh_num, self.down_left_x[veh_num], self.down_left_y[veh_num], time):
-                print("downleft, pattern5")
-                return False
-
-            # Down right
-            if ((self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10) in \
-                    self.intersec_grid[time]:
-                if self.intersec_grid[time][(self.down_right_x[veh_num] // 10 * 10,
-                                             self.down_right_y[veh_num] // 10 * 10)] == False:
-                    print("downright, pattern5")
-                    self.beze_t[veh_num] = 2
+        while new_position[0] < destination[0]:
+            if new_position[0] == 594:
+                if not self.intersec_grid[time][(600, 610)]:
+                    print('firstgrid')
                     return False
                 else:
-                    self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                    self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
-                    self.intersec_grid[time][(
-                        (self.down_right_x[veh_num]) // 10 * 10, (self.down_right_y[veh_num]) // 10 * 10)] = False
-
+                    new_position = (origin[0], origin[1])
+                    check_first = True
+                    # print("check p33 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
             else:
-                if (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10) in self.intersec_grid[
-                    time]:
-                    self.intersec_grid[time][
-                        (self.up_left_x[veh_num] // 10 * 10, self.up_left_y[veh_num] // 10 * 10)] = False
-                if ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10) in \
-                        self.intersec_grid[time]:
-                    self.intersec_grid[time][
-                        ((self.up_right_x[veh_num]) // 10 * 10, self.up_right_y[veh_num] // 10 * 10)] = False
-                if (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10) in \
-                        self.intersec_grid[time]:
-                    self.intersec_grid[time][
-                        (self.down_left_x[veh_num] // 10 * 10, (self.down_left_y[veh_num]) // 10 * 10)] = False
+                # All parts of veh have been in intersection
 
-            # print("check p2 current_time", current_time)
-            # print(self.intersec_grid[time])
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * destination[0] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * origin[1] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[1]
+
+                new_position = (x, y)
+
+                # Calculate rotation angle
+                if 15.0 < -((origin[0] - (new_position[0] + speed)) / 20) * 90 <= 90.0:
+                    self.r[veh_num] = -(-((origin[0] - (new_position[0] + speed)) / 20)) * 90
+                elif -((origin[0] - (new_position[0] + speed)) / 20) * 90 > 90:
+                    self.r[veh_num] = -90
+                else:
+                    self.r[veh_num] = 0
+
+                self.beze_t[veh_num] += 2
+
+
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
+
+            if check_first:
+                self.intersec_grid[time][(600, 610)] = False
+            check_first = False
+
+            # print("check p33 current_time", current_time)
             # print('time', time)
-            # print('veh_num', veh_num)
-            # print(self.beze_t)
             # print(self.beze_t[veh_num])
-            # print('new_position', new_position, 'r', self.r)
+            # print('new_position', new_position, 'r:', self.r[veh_num])
+            # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+            # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+            # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+            # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+            # print(self.intersec_grid[time])
+            time += 1
+
+        # Initiate beze_t
+        self.beze_t[veh_num] = 2
+
+        return True
+
+    # vehicles travel from E_5 to S_5
+    # origin and destination is a pattern of (x,y)
+    def light_veh_pattern34(self, veh_num, current, origin, destination, speed, current_time):
+
+        new_position = current
+        time = 0
+
+        # To light up grid(270, 270)
+        check_first = False
+
+        # Initiate intersection grid
+        if self.time_step == 0:
+            self.init_intersec_grid(self.t_ahead)
+
+        if current_time > self.time_step:
+            self.update_intersec_grid(current_time, self.time_step, veh_num)
+            print('Pattern34')
+
+        # Before veh get out of the intersection
+        while new_position[0] > destination[0]:
+            if new_position[0] == 666:
+                if not self.intersec_grid[time][(650, 640)]:
+                    print('firstgrid')
+                    return False
+                else:
+                    new_position = (origin[0], origin[1])
+                    check_first = True
+                    # print("check p34 current_time", current_time)
+                    # print('time', time)
+                    # print(self.beze_t[veh_num])
+                    # print('new_position', new_position)
+                    # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+                    # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+                    # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+                    # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
+                    # print(self.intersec_grid[time])
+                    time += 1
+            else:
+                # All parts of veh have been in intersection
+
+                # Calculate trajectory by using Bezier Curve
+                x = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[0] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * destination[0] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[0]
+                y = pow(1 - (self.beze_t[veh_num] / 20), 2) * origin[1] + 2 * (self.beze_t[veh_num] / 20) * (
+                    1 - self.beze_t[veh_num] / 20) * origin[1] + pow(
+                    self.beze_t[veh_num] / 20, 2) * destination[1]
+
+                # Calculate rotation angle
+                if ((origin[0] - (new_position[0] + speed)) / 20) * 90 > 15:
+                    self.r[veh_num] = -((origin[0] - (new_position[0] + speed)) / 20) * 90
+                elif ((origin[0] - (new_position[0] + speed)) / 20) * 90 > 90:
+                    self.r[veh_num] = -90
+                else:
+                    self.r[veh_num] = 0
+
+                self.beze_t[veh_num] += 2
+                new_position = (x, y)
+
+                # Calculate the big Square's coordinate
+                (self.up_left_x[veh_num], self.up_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[0]
+                (self.down_left_x[veh_num], self.down_left_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[1]
+                (self.up_right_x[veh_num], self.up_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[2]
+                (self.down_right_x[veh_num], self.down_right_y[veh_num]) = new_Rect.new_v_rec(x, y, 0)[3]
+
+                if not self.check_lighten(veh_num, self.up_left_x[veh_num], self.up_left_y[veh_num],
+                                          self.up_right_x[veh_num], self.up_right_y[veh_num],
+                                          self.down_left_x[veh_num], self.down_left_y[veh_num],
+                                          self.down_right_x[veh_num], self.down_right_y[veh_num], time):
+                    return False
+
+            if check_first:
+                self.intersec_grid[time][(650, 640)] = False
+            check_first = False
+
+            # print("check p34 current_time", current_time)
+            # print('time', time)
+            # print(self.beze_t[veh_num])
+            # print('new_position', new_position, 'r', self.r[veh_num])
+            # print(self.up_left_x[veh_num], self.up_left_y[veh_num])
+            # print(self.up_right_x[veh_num], self.up_right_y[veh_num])
+            # print(self.down_left_x[veh_num], self.down_left_y[veh_num])
+            # print(self.down_right_x[veh_num], self.down_right_y[veh_num])
             # print(self.intersec_grid[time])
             time += 1
 

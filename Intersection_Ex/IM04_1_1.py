@@ -7,7 +7,7 @@ from datetime import datetime
 import socket
 import json
 
-sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection_Ex_2')
+sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection_Ex')
 import rec_funcs
 import copy
 import new_Rect
@@ -42,7 +42,7 @@ class IM():
             self.intersec_grid.append(copy.deepcopy(self.grid))
 
         # Initiate veh rotating angle
-        self.veh_num = 76
+        self.veh_num = 70
         self.r = []
         for i in range(self.veh_num):
             self.r.append(0)

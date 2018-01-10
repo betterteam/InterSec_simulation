@@ -7,7 +7,7 @@ from datetime import datetime
 import socket
 import json
 
-sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection_Ex_2')
+sys.path.append('Users/better/PycharmProjects/GUI_Qt5/Intersection_Ex')
 import rec_funcs
 import copy
 import new_Rect
@@ -16,7 +16,7 @@ import new_Rect
 class IM():
     def __init__(self):
         # preparation as a server
-        self.server_address = ('localhost', 6792)
+        self.server_address = ('localhost', 6789)
         self.max_size = 4096
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server.bind(self.server_address)
@@ -33,8 +33,8 @@ class IM():
         self.intersec_grid = []
         self.t_ahead = 35
 
-        for i in range(600, 660, 10):
-            for j in range(600, 660, 10):
+        for i in range(270, 330, 10):
+            for j in range(270, 330, 10):
                 self.grid[(i, j)] = True
 
         # whole time step that IM will predict in current time_step
@@ -42,7 +42,7 @@ class IM():
             self.intersec_grid.append(copy.deepcopy(self.grid))
 
         # Initiate veh rotating angle
-        self.veh_num = 76
+        self.veh_num = 70
         self.r = []
         for i in range(self.veh_num):
             self.r.append(0)
@@ -87,8 +87,8 @@ class IM():
 
             veh_id = recData["Veh_id"]
             current = tuple(recData["current_position"])
-            origin = tuple(recData["origin_4"])
-            destination = tuple(recData["destination_4"])
+            origin = tuple(recData["origin_1"])
+            destination = tuple(recData["destination_1"])
             speed = recData["speed"]
             current_time = recData["time_step"]
             pattern = recData["pattern"]
@@ -174,8 +174,8 @@ class IM():
     # function to Initiate intersection grid
     def init_intersec_grid(self, t_ahead):
         for k in range(t_ahead):
-            for i in range(600, 660, 10):
-                for j in range(600, 660, 10):
+            for i in range(270, 330, 10):
+                for j in range(270, 330, 10):
                     self.intersec_grid[k][(i, j)] = True
 
     # function to update intersection grid
@@ -301,8 +301,8 @@ class IM():
         while new_position[1] < destination[1]:
 
             # Check if all parts of veh have been in intersection
-            if new_position[1] == 594:
-                if not self.intersec_grid[time][(640, 600)]:
+            if new_position[1] == 264:
+                if not self.intersec_grid[time][(310, 270)]:
                     print('firstgrid')
                     return False
                 else:
@@ -357,7 +357,7 @@ class IM():
                     return False
 
                 if check_first:
-                    self.intersec_grid[time][(640, 600)] = False
+                    self.intersec_grid[time][(310, 270)] = False
                 check_first = False
 
                 # print("check p11 current_time", current_time)
@@ -394,8 +394,8 @@ class IM():
         # Before veh get out of the intersection
         while new_position[1] > destination[1]:
             # Check if all parts of veh have been in intersection
-            if new_position[1] == 666:
-                if not self.intersec_grid[time][(610, 650)]:
+            if new_position[1] == 336:
+                if not self.intersec_grid[time][(280, 320)]:
                     print('firstgrid')
                     return False
                 else:
@@ -447,7 +447,7 @@ class IM():
                     return False
 
                 if check_first:
-                    self.intersec_grid[time][(610, 650)] = False
+                    self.intersec_grid[time][(280, 320)] = False
                 check_first = False
 
                 # print("check p12 current_time", current_time)
@@ -487,8 +487,8 @@ class IM():
         while new_position[0] < destination[0]:
 
             # Check if all parts of veh have been in intersection
-            if new_position[0] == 594:
-                if not self.intersec_grid[time][(600, 610)]:
+            if new_position[0] == 264:
+                if not self.intersec_grid[time][(270, 280)]:
                     print('firstgrid')
                     return False
                 else:
@@ -539,7 +539,7 @@ class IM():
                     return False
 
                 if check_first:
-                    self.intersec_grid[time][(600, 610)] = False
+                    self.intersec_grid[time][(270, 280)] = False
                 check_first = False
 
                 # print("check p13 current_time", current_time)
@@ -579,8 +579,8 @@ class IM():
         while new_position[0] > destination[0]:
 
             # Check if all parts of veh have been in intersection
-            if new_position[0] == 666:
-                if not self.intersec_grid[time][(650, 640)]:
+            if new_position[0] == 336:
+                if not self.intersec_grid[time][(320, 310)]:
                     print('firstgrid')
                     return False
                 else:
@@ -631,7 +631,7 @@ class IM():
                     return False
 
                 if check_first:
-                    self.intersec_grid[time][(650, 640)] = False
+                    self.intersec_grid[time][(320, 310)] = False
                 check_first = False
 
                 # print("check p14 current_time", current_time)
@@ -686,13 +686,13 @@ class IM():
                                self.down_left_x[veh_num], self.down_left_y[veh_num], self.down_right_x[veh_num], self.down_right_y[veh_num], time):
                 return False
 
-            print("check p21 current_time", current_time)
+            # print("check p21 current_time", current_time)
             # print(self.intersec_grid[time])
             # print('time', time)
             # print('veh_num', veh_num)
             # print(self.beze_t)
             # print(self.beze_t[veh_num])
-            print('new_position', new_position)
+            # print('new_position', new_position)
             # print(self.intersec_grid[time])
             time += 1
 
@@ -868,8 +868,8 @@ class IM():
 
         # Before veh get out of the intersection
         while new_position[1] < destination[1]:
-            if new_position[1] == 594:
-                if not self.intersec_grid[time][(640, 600)]:
+            if new_position[1] == 264:
+                if not self.intersec_grid[time][(310, 270)]:
                     print('firstgrid')
                     return False
                 else:
@@ -921,7 +921,7 @@ class IM():
                     return False
 
             if check_first:
-                self.intersec_grid[time][(640, 600)] = False
+                self.intersec_grid[time][(310, 270)] = False
             check_first = False
 
             # print("check p31 current_time", current_time)
@@ -960,8 +960,8 @@ class IM():
 
         # Before veh get out of the intersection
         while new_position[1] > destination[1]:
-            if new_position[1] == 666:
-                if not self.intersec_grid[time][(610, 650)]:
+            if new_position[1] == 336:
+                if not self.intersec_grid[time][(280, 320)]:
                     print('firstgrid')
                     return False
                 else:
@@ -1014,7 +1014,7 @@ class IM():
                     return False
 
             if check_first:
-                self.intersec_grid[time][(610, 650)] = False
+                self.intersec_grid[time][(280, 320)] = False
             check_first = False
 
             # print("check p32 current_time", current_time)
@@ -1053,8 +1053,8 @@ class IM():
 
         # Before veh get out of the intersection
         while new_position[0] < destination[0]:
-            if new_position[0] == 594:
-                if not self.intersec_grid[time][(600, 610)]:
+            if new_position[0] == 264:
+                if not self.intersec_grid[time][(270, 280)]:
                     print('firstgrid')
                     return False
                 else:
@@ -1107,7 +1107,7 @@ class IM():
                     return False
 
             if check_first:
-                self.intersec_grid[time][(600, 610)] = False
+                self.intersec_grid[time][(270, 280)] = False
             check_first = False
 
             # print("check p33 current_time", current_time)
@@ -1146,8 +1146,8 @@ class IM():
 
         # Before veh get out of the intersection
         while new_position[0] > destination[0]:
-            if new_position[0] == 666:
-                if not self.intersec_grid[time][(650, 640)]:
+            if new_position[0] == 336:
+                if not self.intersec_grid[time][(320, 310)]:
                     print('firstgrid')
                     return False
                 else:
@@ -1198,7 +1198,7 @@ class IM():
                     return False
 
             if check_first:
-                self.intersec_grid[time][(650, 640)] = False
+                self.intersec_grid[time][(320, 310)] = False
             check_first = False
 
             # print("check p34 current_time", current_time)

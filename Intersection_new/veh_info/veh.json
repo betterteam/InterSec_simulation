@@ -1,0 +1,104 @@
+{"time": 0,
+ "vehicle": [
+              {
+                "Veh_id": 0,
+                "arrival_time": 1,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 1,
+                "arrival_time": 2,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 2,
+                "arrival_time": 3,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 3,
+                "arrival_time": 4,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 4,
+                "arrival_time": 5,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 5,
+                "arrival_time": 6,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 6,
+                "arrival_time": 7,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 7,
+                "arrival_time": 8,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 8,
+                "arrival_time": 9,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              },
+              {
+                "Veh_id": 9,
+                "arrival_time": 10,
+                "arrival_lane": 1,
+                "origin_1": [270, 273],
+                "destination_1": [318, 320],
+                "speed": 2,
+                "current_time": 0,
+                "pattern": 1
+              }
+            ]
+}

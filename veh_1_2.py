@@ -1,4 +1,9 @@
-# Final version of traffic signal
+# coding:utf-8
+# Test vehicle with UDP
+# Add veh pattern2
+# After seminar 0920, new improvement
+# Unify parameter name in Propose Function
+
 
 import sys
 import numpy as np
@@ -6,6 +11,11 @@ from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QFrame, QDesktop
 from PyQt5.QtGui import QPainter, QColor, QPen, QBrush
 from PyQt5.QtCore import Qt, QTimer, QTime
 import math
+
+import socket
+from datetime import datetime
+import struct
+import json
 
 class Position:
     def __init__(self, x=0, y=0):
@@ -53,11 +63,16 @@ class Vehicle:
             self._position.x = 0
 
 class Example(QWidget):
-    def __init__(self, vehicles_N, vehicles_W, vehicles_E):
+    def __init__(self, vehicles_N, vehicles_W, vehicles_E, sendData_1, sendData_3):
         super().__init__()
         self.vehicles_N = vehicles_N
         self.vehicles_W = vehicles_W
         self.vehicles_E = vehicles_E
+        self.sendData_1 = sendData_1
+        self.sendData_3 = sendData_3
+        self.my_result = 0
+        self.t_t = 0
+
         self.initUI()
 
         self.timer = QTimer(self)
@@ -113,11 +128,11 @@ class Example(QWidget):
                 self.grid[(i, j)] = True
 
     def paintEvent(self, e):
-        #print("!")
+        self.t_t += 1
         qp = QPainter(self)
 
         self.drawLines(qp)
-        self.drawSignals_0(qp)
+        #self.drawSignals_0(qp)
         self.drawVehicles(qp)
 
     def drawLines(self, qp):
@@ -262,82 +277,150 @@ class Example(QWidget):
     def coordinate_down_right_y(self, po_y, r):
         return po_y + 10 * math.sin(math.radians(r)) + 5 * math.cos(math.radians(r))
 
+    def propose_pattern_1(self, veh_id, current, origin, destination, speed, current_time, pattern):
+        server_address = ('localhost', 6789)
+        max_size = 4096
+
+        print('Starting the client at', datetime.now())
+
+        client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        self.sendData_1["pattern"] = 1
+        current_position = list(current)
+        print('++++++++++++++++++++++++++++++++++++++')
+        self.sendData_1["origin"] = list(origin)
+        self.sendData_1["destination"] = list(destination)
+        self.sendData_1["speed"] = speed
+
+        # sendData_1: veh info and current Total_time
+        #mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData_1["vehicle"][veh_id])), encoding='utf-8')
+        dictMerge = dict({"time_step": current_time}, **self.sendData_1["vehicle"][veh_id])
+        dictMerge = dict({"current_position": current_position}, **dictMerge)
+        mes = bytes(json.dumps(dictMerge), encoding='utf-8')
+        print(dictMerge)
+
+        client.sendto(mes, server_address)
+        data, server = client.recvfrom(max_size)
+
+        data = data.decode('utf-8')
+        recData = json.loads(data)
+        print('At', datetime.now(), server, 'said', recData)
+        client.close()
+        self.my_result = recData['result']
+
+        return self.my_result
+
+    def propose_pattern_3(self, veh_id, current, origin, destination, speed, current_time, pattern):
+        server_address = ('localhost', 6789)
+        max_size = 4096
+
+        print('Starting the client at', datetime.now())
+
+        client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        self.sendData_3["pattern"] = 3
+        current_position = list(current)
+        print('++++++++++++++++++++++++++++++++++++++')
+        self.sendData_3["origin"] = list(origin)
+        self.sendData_3["destination"] = list(destination)
+        self.sendData_3["speed"] = speed
+
+        # sendData_1: veh info and current Total_time
+        # mes = bytes(json.dumps(dict({"time_step": self.t_t}, **self.sendData_1["vehicle"][veh_id])), encoding='utf-8')
+        dictMerge = dict({"time_step": current_time}, **self.sendData_3["vehicle"][veh_id])
+        dictMerge = dict({"current_position": current_position}, **dictMerge)
+        mes = bytes(json.dumps(dictMerge), encoding='utf-8')
+        print(dictMerge)
+
+        client.sendto(mes, server_address)
+        data, server = client.recvfrom(max_size)
+
+        data = data.decode('utf-8')
+        recData = json.loads(data)
+        print('At', datetime.now(), server, 'said', recData)
+        client.close()
+        self.my_result = recData['result']
+
+        return self.my_result
+
     def drawVehicles(self, qp):
 
         qp.setPen(Qt.black)
         qp.setBrush(Qt.green)
+        #qp.drawRect(310, 310, 5, 10)
 
+        #self.propose(1, [262, 273], [270, 273], [330, 330], 2)
 
-        # # Vehicles from North
-        for i, veh in enumerate(vehicles_N):
-            if (veh.getPosition().x + veh.getSpeed().x, veh.getPosition().y + veh.getSpeed().y) in self.collision_check_N:
-                qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
-                for i in range(11):
-                    self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-            else:
-                if veh.getPosition().y + veh.getSpeed().y > 260 and veh.getPosition().y <= 260:
-                    if self.single_0_1:
-                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
-                        for i in range(11):
-                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-                    else:
-                        if veh.getPosition().y <= 270:
-                            if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                          (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
-
-                                veh.getPosition().y += veh.getSpeed().y
-                                qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
-                                for i in range(11):
-                                    self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-                                self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
-                                self.grid[((veh.getPosition().x + veh.getSize().x) // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
-                        else:
-                            try:
-                                if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                              (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
-                                        self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                                   (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
-                                        self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                                   (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
-                                        self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                                   (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
-
-                                    self.vehicles_N[i].getPosition().y += veh.getSpeed().y
-
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
-                                    self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
-                                               (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
-
-                                    if self.vehicles_N[i].getPosition().y > 600:
-                                        self.vehicles_N[i].getPosition().y = 0
-                                        qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
-                                        for i in range(11):
-                                            self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
-
-                            except KeyError:
-                                self.vehicles_N[i].getPosition().y += veh.getSpeed().y
-
-                                if self.vehicles_N[i].getPosition().y > 600:
-                                    self.vehicles_N[i].getPosition().y = 0
-
-                                qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
-
-                else:
-                    # print(self.single_0_1)
-                    veh.getPosition().y += veh.getSpeed().y
-                    if veh.getPosition().y > 600:
-                        veh.getPosition().y = 0
-                        # print(self.t.elapsed())
-                    qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
-                    for i in range(11):
-                        self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        # Vehicles from North
+        # for i, veh in enumerate(vehicles_N):
+        #     if (veh.getPosition().x + veh.getSpeed().x, veh.getPosition().y + veh.getSpeed().y) in self.collision_check_N:
+        #         qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
+        #         for i in range(11):
+        #             self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #     else:
+        #         if veh.getPosition().y + veh.getSpeed().y > 260 and veh.getPosition().y <= 260:
+        #             if self.single_0_1:
+        #                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, veh.getSize().x, veh.getSize().y)
+        #                 for i in range(11):
+        #                     self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #             else:
+        #                 if veh.getPosition().y <= 270:
+        #                     if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                   (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
+        #
+        #                         veh.getPosition().y += veh.getSpeed().y
+        #                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
+        #                         for i in range(11):
+        #                             self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #                         self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
+        #                         self.grid[((veh.getPosition().x + veh.getSize().x) // 10 * 10, (veh.getPosition().y + veh.getSize().y) // 10 * 10)] = False
+        #                 else:
+        #                     try:
+        #                         if self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                       (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
+        #                                 self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                            (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] and \
+        #                                 self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                            (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] and \
+        #                                 self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                            (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)]:
+        #
+        #                             self.vehicles_N[i].getPosition().y += veh.getSpeed().y
+        #
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y) // 10 * 10)] = False
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
+        #                             self.grid[((veh.getPosition().x + veh.getSpeed().x + veh.getSize().x) // 10 * 10,
+        #                                        (veh.getPosition().y + veh.getSpeed().y + veh.getSize().y) // 10 * 10)] = False
+        #
+        #                             if self.vehicles_N[i].getPosition().y > 600:
+        #                                 self.vehicles_N[i].getPosition().y = 0
+        #                                 qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
+        #                                 for i in range(11):
+        #                                     self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
+        #
+        #                     except KeyError:
+        #                         self.vehicles_N[i].getPosition().y += veh.getSpeed().y
+        #
+        #                         if self.vehicles_N[i].getPosition().y > 600:
+        #                             self.vehicles_N[i].getPosition().y = 0
+        #
+        #                         qp.drawRect(self.vehicles_N[i].getPosition().x, self.vehicles_N[i].getPosition().y, 5, 10)
+        #
+        #         else:
+        #             # print(self.single_0_1)
+        #             veh.getPosition().y += veh.getSpeed().y
+        #             if veh.getPosition().y > 600:
+        #                 veh.getPosition().y = 0
+        #                 # print(self.t.elapsed())
+        #             qp.drawRect(veh.getPosition().x, veh.getPosition().y, 5, 10)
+        #             for i in range(11):
+        #                 self.collision_check_N.append((veh.getPosition().x, veh.getPosition().y - i))
 
             #print(self.collision_check)
 
@@ -355,38 +438,22 @@ class Example(QWidget):
             else:
                 # Just before the intersection
                 if veh.getPosition().x + 10 + 2 > 270 and veh.getPosition().x <= 270 - 10:
+                      #+++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     # Check traffic signal. True, then stop before entering.
-                    if self.single_0_0:
+                    #print(veh.getPosition())
+                    if not self.propose_pattern_1(i, (veh.getPosition().x, veh.getPosition().y), (270, 273), (330, 330), veh.getSpeed().x, self.t_t, 1):
+                    # if True:
+                        print("False", (veh.getPosition().x, veh.getPosition().y))
                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
                         for j in range(11):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
                     # Enter intersection
                     else:
+                        print("True", (veh.getPosition().x, veh.getPosition().y))
                         veh.getPosition().x += 2
                         qp.drawRect(veh.getPosition().x, veh.getPosition().y, 10, 5)
                         for j in range(11):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
-
-                        # Light up the grids in the intersection
-                        # Up left
-                        if (veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
-                            self.grid[(veh.getPosition().x // 10 * 10, veh.getPosition().y // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                        # Up right
-                        if ((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10) in self.grid:
-                            self.grid[((veh.getPosition().x + 10) // 10 * 10, veh.getPosition().y // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                        # Down left
-                        if (veh.getPosition().x // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
-                            self.grid[(veh.getPosition().x // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
-
-                        # Down right
-                        if ((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y) // 10 * 10) in self.grid:
-                            self.grid[((veh.getPosition().x + 10) // 10 * 10, (veh.getPosition().y + 5) // 10 * 10)] = False
-                            #print('success, x:', veh.getPosition().x)
 
                 # Already in the intersection
                 else:
@@ -404,12 +471,12 @@ class Example(QWidget):
                         qp.translate(-veh.getPosition().x, -veh.getPosition().y)
 
                         # Calculate trajectory by using Bezier Curve
-                        x = pow(1 - (self.beze_t[i] / 60), 2) * 272 + 2 * (self.beze_t[i] / 60) * (
-                        1 - self.beze_t[i] / 60) * 330 + pow(
-                            self.beze_t[i] / 60, 2) * 330
+                        x = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
+                        1 - self.beze_t[i] / 60) * 332 + pow(
+                            self.beze_t[i] / 60, 2) * 332
                         y = pow(1 - (self.beze_t[i] / 60), 2) * 273 + 2 * (self.beze_t[i] / 60) * (
                         1 - self.beze_t[i] / 60) * 273 + pow(
-                            self.beze_t[i] / 60, 2) * 330
+                            self.beze_t[i] / 60, 2) * 332
                         veh.setPosition(Position(x, y))
 
                         self.beze_t[i] += 2
@@ -427,26 +494,6 @@ class Example(QWidget):
                         self.up_right_y[i] = self.coordinate_up_right_y(veh.getPosition().y)
                         self.down_right_x[i] = self.coordinate_down_right_x(veh.getPosition().x, self.r[i])
                         self.down_right_y[i] = self.coordinate_down_right_y(veh.getPosition().y, self.r[i])
-
-                        # Up left
-                        if (self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10) in self.grid:
-                            self.grid[(self.up_left_x[i] // 10 * 10, self.up_left_y[i] // 10 * 10)] = False
-                            # print('success')
-
-                        # Up right
-                        if ((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10) in self.grid:
-                            self.grid[((self.up_right_x[i]) // 10 * 10, self.up_right_y[i] // 10 * 10)] = False
-                            # print('success')
-
-                        # Down left
-                        if (self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10) in self.grid:
-                            self.grid[(self.down_left_x[i] // 10 * 10, (self.down_left_y[i]) // 10 * 10)] = False
-                            # print('success')
-
-                        # Down right
-                        if ((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10) in self.grid:
-                            self.grid[((self.down_right_x[i]) // 10 * 10, (self.down_right_y[i]) // 10 * 10)] = False
-                            # print('success')
 
                     # Already left intersection
                     elif 328 <= veh.getPosition().x and veh.getPosition().y < 600:
@@ -477,34 +524,25 @@ class Example(QWidget):
                             self.collision_check_W.append((veh.getPosition().x - j, veh.getPosition().y))
 
         # Vehicle2
-        # if self.single_0_0:
-        #     qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-        # else:
-        try:
-            if self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
-                    self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, self.vehicles_E[0].getPosition().y // 10 * 10)] and \
-                    self.grid[((self.vehicles_E[0].getPosition().x - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)] and \
-                    self.grid[((self.vehicles_E[0].getPosition().x + 10 - 5) // 10 * 10, (self.vehicles_E[0].getPosition().y + 5) // 10 * 10)]:
 
-                self.vehicles_E[0].getPosition().x -= 3
+        if 330 <= (vehicles_E[0].getPosition().x) and (vehicles_E[0].getPosition().x - vehicles_E[0].getSpeed().x) < 330:
+            if self.propose_pattern_3(0, (vehicles_E[0].getPosition().x, vehicles_E[0].getPosition().y), (330, 272), (260, 272), veh.getSpeed().x, self.t_t, 3):
+            # if True:
+                self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
 
                 if self.vehicles_E[0].getPosition().x < 0:
                     self.vehicles_E[0].getPosition().x = 600
 
                 qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
                 qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-
             else:
-                qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
                 qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
-
-        except KeyError:
-            self.vehicles_E[0].getPosition().x -= 3
+        else:
+            self.vehicles_E[0].getPosition().x -= self.vehicles_E[0].getSpeed().x
 
             if self.vehicles_E[0].getPosition().x < 0:
                 self.vehicles_E[0].getPosition().x = 600
 
-            qp.drawPoint(self.vehicles_E[0].getPosition().x + 1, self.vehicles_E[0].getPosition().y - 1)
             qp.drawRect(self.vehicles_E[0].getPosition().x, self.vehicles_E[0].getPosition().y, 10, 5)
 
         self.collision_check = []
@@ -512,12 +550,6 @@ class Example(QWidget):
         self.collision_check_S = []
         self.collision_check_W = []
         self.collision_check_E = []
-
-
-        for i in range(270, 330, 10):
-            for j in range(270, 330, 10):
-                self.grid[(i, j)] = True
-
 
         self.ti += 10
         if self.ti > 700:
@@ -540,7 +572,7 @@ if __name__ == '__main__':
 
     # Vehicles from West
     vehicles_W = []
-    for i in range(9):
+    for i in range(10):
         v = Vehicle()
         v.setPosition(Position(0 - i * 10, 273))
         v.setSpeed(Speed(2, 0))
@@ -552,12 +584,19 @@ if __name__ == '__main__':
     vehicles_E = []
     v = Vehicle()
     v.setPosition(Position(600, 302))
-    v.setSpeed(Speed(2, 0))
+    v.setSpeed(Speed(5, 0))
     v.setSize(Size(10, 5))
     vehicles_E.append(v)
 
-    ex = Example(vehicles_N, vehicles_W, vehicles_E)
+    # Read vehicles info from json file
+    f = open('veh.json', 'r')
+    sendData_1 = json.load(f)
+    f.close()
+
+    f = open('veh_3.json', 'r')
+    sendData_3 = json.load(f)
+    f.close()
+
+    ex = Example(vehicles_N, vehicles_W, vehicles_E, sendData_1, sendData_3)
+
     sys.exit(app.exec_())
-
-
-

@@ -1,0 +1,124 @@
+{"time": 0,
+ "vehicle": [
+              {
+                "Veh_id": 10,
+                "arrival_time": 1,
+                "arrival_lane": 3,
+                "origin_1": [315, 265],
+                "destination_1": [335, 285],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 31
+              },
+              {
+                "Veh_id": 11,
+                "arrival_time": 2,
+                "arrival_lane": 3,
+                "origin_1": [315, 265],
+                "destination_1": [335, 285],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 31
+              },
+              {
+                "Veh_id": 12,
+                "arrival_time": 3,
+                "arrival_lane": 3,
+                "origin_1": [285, 335],
+                "destination_1": [265, 315],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 32
+              },
+              {
+                "Veh_id": 13,
+                "arrival_time": 4,
+                "arrival_lane": 3,
+                "origin_1": [285, 335],
+                "destination_1": [265, 315],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 32
+              },
+              {
+                "Veh_id": 14,
+                "arrival_time": 5,
+                "arrival_lane": 3,
+                "origin_1": [265, 285],
+                "destination_1": [285, 265],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 33
+              },
+              {
+                "Veh_id": 15,
+                "arrival_time": 6,
+                "arrival_lane": 3,
+                "origin_1": [265, 285],
+                "destination_1": [285, 265],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 33
+              },
+              {
+                "Veh_id": 16,
+                "arrival_time": 7,
+                "arrival_lane": 3,
+                "origin_1": [335, 315],
+                "destination_1": [315, 335],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 34
+              },
+              {
+                "Veh_id": 17,
+                "arrival_time": 8,
+                "arrival_lane": 3,
+                "origin_1": [335, 315],
+                "destination_1": [315, 335],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 34
+              },
+              {
+                "Veh_id": 18,
+                "arrival_time": 9,
+                "arrival_lane": 3,
+                "origin_1": [335, 315],
+                "destination_1": [315, 335],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 3
+              },
+              {
+                "Veh_id": 19,
+                "arrival_time": 10,
+                "arrival_lane": 3,
+                "origin_1": [330, 313],
+                "destination_1": [270, 313],
+                "origin_2": [660, 313],
+                "destination_2": [600, 313],
+                "speed": 3,
+                "current_time": 0,
+                "pattern": 3
+              }
+            ]
+}
